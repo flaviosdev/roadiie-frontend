@@ -17,5 +17,7 @@ export function useMusicApi() {
   const update = (id: number, data: Music) =>
     axios.put<Music>(`${base}/${id}`, data);
 
-  return { findAll, findById, create, update };
+  const deletee = (id: number) => axios.delete<Music>(`${base}/${id}`);
+
+  return { findAll, findById, create, update, deletee };
 }

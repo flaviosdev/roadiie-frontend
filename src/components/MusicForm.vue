@@ -14,6 +14,7 @@ const { findById, create, update } = useMusicApi()
 const form = ref<Music>({
   title: '',
   artist: '',
+  releaseYear: ''
 })
 
 /**
@@ -30,10 +31,17 @@ onMounted(async () => {
  * Save data
  */
 const save = async () => {
+  const payload = {
+    ...form.value, tags: form.value.tags
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0)
+  };
+
   if (props.id) {
-    await update(props.id, form.value)
+    await update(props.id, payload)
   } else {
-    await create(form.value)
+    await create(payload)
   }
   emit('saved')
 }
@@ -47,6 +55,8 @@ const cancel = () => emit('cancelled')
     <form @submit.prevent="save">
       <label>Artist: <input v-model="form.artist" type="text" /></label>
       <label>Title: <input v-model="form.title" type="text" /></label>
+      <label>Release Year: <input v-model="form.releaseYear" type="text" /></label>
+      <label>Tags: <input v-model="form.tags" type="text" /></label>
       <div class="buttons">
         <button type="submit">
           {{ props.id ? 'Update' : 'Save' }}
