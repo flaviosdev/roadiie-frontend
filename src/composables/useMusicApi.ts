@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Music } from '@/types/Music';
+import type { Music } from '@/types/music.ts';
 
 const base = 'http://localhost:8080/music';
 
@@ -8,16 +8,16 @@ export function useMusicApi() {
   const findAll = () =>
     axios.get<Music[]>(base);
 
-  const findById = (id: number) =>
+  const findById = (id: string) =>
     axios.get<Music>(`${base}/${id}`);
 
   const create = (data: Music) =>
     axios.post<Music>(base, data);
 
-  const update = (id: number, data: Music) =>
+  const update = (id: string, data: Music) =>
     axios.put<Music>(`${base}/${id}`, data);
 
-  const deletee = (id: number) => axios.delete<Music>(`${base}/${id}`);
+  const deletee = (id: string) => axios.delete<Music>(`${base}/${id}`);
 
   return { findAll, findById, create, update, deletee };
 }

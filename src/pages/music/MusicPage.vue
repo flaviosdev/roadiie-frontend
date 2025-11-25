@@ -2,13 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { useMusicApi } from '@/composables/useMusicApi'
 import MusicForm from '@/components/MusicForm.vue'
-import type { Music } from '@/types/Music'
+import type { Music } from '@/types/music.ts'
 
 const { findAll, deletee } = useMusicApi()
 
 const list = ref<Music[]>([])
 const showForm = ref(false)
-const editId = ref<number | null>(null)
+const selectedMusic = ref<Music | null>(null)
 
 const load = async () => {
   const { data } = await findAll()
@@ -16,12 +16,12 @@ const load = async () => {
 }
 
 const createNew = () => {
-  editId.value = null
+  //editId.value = null
   showForm.value = true
 }
 
-const edit = (id: string) => {
-  editId.value = id
+const edit = (music: Music) => {
+  selectedMusic.value = music
   showForm.value = true
 }
 
@@ -56,12 +56,12 @@ onMounted(load)
     <!-- LIST -->
     <ul>
       <li v-for="m in list" :key="m.id">
-        {{ m.name }} — {{ m.artist }} <button @click="edit(m.id!)">Edit</button> /
+        {{ m.title }} - {{ m.artist }} <button @click="edit(m)">Edit</button> /
         <button @click="deleteMusic(m.id!)">Delete</button> /
       </li>
     </ul>
 
     <!-- FORM -->
-    <MusicForm v-if="showForm" :id="editId ?? undefined" @saved="onSaved" @cancelled="closeForm" />
+    <MusicForm v-if="showForm" :model-value="selectedMusic" @saved="onSaved" @cancelled="closeForm" />
   </div>
 </template>

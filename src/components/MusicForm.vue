@@ -1,50 +1,68 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import type { Music } from '@/types/music.ts'
 import { useMusicApi } from '@/composables/useMusicApi.ts'
 
 interface Props {
-  id?: string
+  modelValue?: Music | null
+  onSaved?: () => void;
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits(['saved', 'cancelled'])
 
-const { findById, create, update } = useMusicApi()
-const form = ref<Music>({
-  title: '',
-  artist: '',
-  releaseYear: ''
-})
+/** Form fields **/
+const id = ref<string | null>(null)
+const title = ref("")
+const artist = ref("")
+const tagsString = ref("")
+const releaseYear = ref(0)
 
-/**
- * Loads data if editing
- */
-onMounted(async () => {
-  if (props.id) {
-    const { data } = await findById(props.id)
-    form.value = data
-  }
-})
+watch(
+  () => props.modelValue,
+  (music) => {
+    if (!music) {
+      id.value = null
+      title.value = ""
+      artist.value = ""
+      tagsString.value = ""
+      return
+    }
+
+    id.value = music.id
+    title.value = music.title
+    artist.value = music.artist
+    releaseYear.value = music.releaseYear
+    tagsString.value = music.tags?.join(", ") || ""
+  },
+  { immediate: true }
+);
+
+const payload = computed(() => ({
+  id: id.value || undefined,
+  title: title.value || undefined,
+  artist: artist.value || undefined,
+  releaseYear: releaseYear.value || undefined,
+  tags: tagsString.value
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+}));
+
+
+const { create, update } = useMusicApi()
 
 /**
  * Save data
  */
 const save = async () => {
-  const payload = {
-    ...form.value, tags: form.value.tags
-      .split(',')
-      .map(t => t.trim())
-      .filter(t => t.length > 0)
-  };
-
-  if (props.id) {
-    await update(props.id, payload)
+  if (id.value) {
+    await update(id.value, payload.value);
   } else {
-    await create(payload)
+    await create(payload.value);
   }
-  emit('saved')
-}
+
+  emit("saved");
+};
 
 const cancel = () => emit('cancelled')
 </script>
@@ -53,13 +71,13 @@ const cancel = () => emit('cancelled')
   <div class="music-form">
     <h2>{{ props.id ? 'Edit Music' : 'New Music' }}</h2>
     <form @submit.prevent="save">
-      <label>Artist: <input v-model="form.artist" type="text" /></label>
-      <label>Title: <input v-model="form.title" type="text" /></label>
-      <label>Release Year: <input v-model="form.releaseYear" type="text" /></label>
-      <label>Tags: <input v-model="form.tags" type="text" /></label>
+      <label>Title: <input v-model="title" type="text" /></label>
+      <label>Artist: <input v-model="artist" type="text" /></label>
+      <label>Release Year: <input v-model="releaseYear" type="text" /></label>
+      <label>Tags: <input v-model="tagsString" type="text" /></label>
       <div class="buttons">
         <button type="submit">
-          {{ props.id ? 'Update' : 'Save' }}
+          {{ id ? 'Update' : 'Save' }}
         </button>
         <button type="button" @click="cancel">Cancel</button>
       </div>
