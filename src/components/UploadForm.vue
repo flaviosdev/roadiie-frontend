@@ -1,127 +1,160 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import type { Upload } from '@/types/upload.ts'
-import { useUploadApi } from '@/composables/useUploadApi.ts'
+import { ref, watch, defineProps, defineEmits } from "vue";
+import type { Upload } from "@/types/upload";
 
-interface Props {
-  modelValue?: Upload | null
-  onSaved?: () => void;
-}
-const props = defineProps<Props>()
-const emit = defineEmits(['saved', 'cancelled'])
+const props = defineProps<{
+  modelValue: Upload | null;
+}>();
 
-/** Form fields **/
-const id = ref<string | null>(null)
-const clientId = ref("")
-const musicId = ref("")
-const title = ref("")
-const platform = ref("")
-const platformId = ref("")
-const uploadUrl = ref("")
-const uploadType = ref("")
-const uploadedAt = ref("")
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Upload | null): void;
+  (e: "saved"): void;
+  (e: "cancelled"): void;
+}>();
 
+const id = ref<string | null>(null);
+const clientId = ref("");
+const musicId = ref("");
+const title = ref("");
+const platform = ref("");
+const platformId = ref("");
+const uploadUrl = ref("");
+const uploadType = ref("");
+const uploadedAtString = ref(""); // ISO string for input type="datetime-local"
+
+// sync form <- modelValue
 watch(
   () => props.modelValue,
-  (upload) => {
-    if (!upload) {
-      id.value = null
-      clientId.value = ""
-      musicId.value = ""
-      title.value = ""
-      platform.value = ""
-      platformId.value = ""
-      uploadUrl.value = ""
-      uploadType.value = ""
-      uploadedAt.value = ""
-      return
+  (value) => {
+    if (value) {
+      id.value = value.id ?? null;
+      clientId.value = value.clientId ?? "";
+      musicId.value = value.musicId ?? "";
+      title.value = value.title ?? "";
+      platform.value = value.platform ?? "";
+      platformId.value = value.platformId ?? "";
+      uploadUrl.value = value.uploadUrl ?? "";
+      uploadType.value = value.uploadType ?? "";
+      uploadedAtString.value = value.uploadedAt ? toInputDateTime(value.uploadedAt) : "";
+    } else {
+      reset();
     }
-
-    id.value = upload.id || null
-    clientId.value = upload.clientId
-    musicId.value = upload.musicId
-    title.value = upload.title
-    platform.value = upload.platform
-    platformId.value = upload.platformId
-    uploadUrl.value = upload.uploadUrl
-    uploadType.value = upload.uploadType
-    uploadedAt.value = upload.uploadedAt ? new Date(upload.uploadedAt).toISOString().split('T')[0] : ""
   },
   { immediate: true }
 );
 
-const payload = computed(() => ({
-  id: id.value || undefined,
-  clientId: clientId.value || undefined,
-  musicId: musicId.value || undefined,
-  title: title.value || undefined,
-  platform: platform.value || undefined,
-  platformId: platformId.value || undefined,
-  uploadUrl: uploadUrl.value || undefined,
-  uploadType: uploadType.value || undefined,
-  uploadedAt: uploadedAt.value ? new Date(uploadedAt.value) : new Date()
-}));
+function reset() {
+  id.value = null;
+  clientId.value = "";
+  musicId.value = "";
+  title.value = "";
+  platform.value = "";
+  platformId.value = "";
+  uploadUrl.value = "";
+  uploadType.value = "";
+  uploadedAtString.value = "";
+}
 
+function toInputDateTime(d: string | Date) {
+  const date = typeof d === 'string' ? new Date(d) : d;
+  // returns "YYYY-MM-DDTHH:MM" format for datetime-local
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const mm = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mi = pad(date.getMinutes());
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+}
 
-const { create, update } = useUploadApi()
+function fromInputDateTime(s: string) {
+  if (!s) return null;
+  return new Date(s);
+}
 
-/**
- * Save data
- */
-const save = async () => {
-  if (id.value) {
-    await update(id.value, payload.value);
-  } else {
-    await create(payload.value);
+async function save() {
+  try {
+    const uploadedAt = fromInputDateTime(uploadedAtString.value);
+    const payload: Upload = {
+      id: id.value ?? undefined,
+      clientId: clientId.value,
+      musicId: musicId.value,
+      title: title.value,
+      platform: platform.value,
+      platformId: platformId.value,
+      uploadUrl: uploadUrl.value,
+      uploadType: uploadType.value,
+      uploadedAt: uploadedAt ?? new Date(),
+    };
+
+    emit("update:modelValue", payload);
+    emit("saved");
+    reset();
+  } catch (err) {
+    console.error("Erro ao salvar upload:", err);
   }
+}
 
-  emit("saved");
-};
-
-const cancel = () => emit('cancelled')
+function cancel() {
+  emit("cancelled");
+}
 </script>
 
 <template>
-  <div class="upload-form">
-    <h2>{{ id ? 'Edit Upload' : 'New Upload' }}</h2>
-    <form @submit.prevent="save">
-      <label>Client ID: <input v-model="clientId" type="text" /></label>
-      <label>Music ID: <input v-model="musicId" type="text" /></label>
-      <label>Title: <input v-model="title" type="text" /></label>
-      <label>Platform: <input v-model="platform" type="text" /></label>
-      <label>Platform ID: <input v-model="platformId" type="text" /></label>
-      <label>Upload URL: <input v-model="uploadUrl" type="text" /></label>
-      <label>Upload Type: <input v-model="uploadType" type="text" /></label>
-      <label>Uploaded At: <input v-model="uploadedAt" type="date" /></label>
-      <div class="buttons">
-        <button type="submit">
-          {{ id ? 'Update' : 'Save' }}
-        </button>
-        <button type="button" @click="cancel">Cancel</button>
+  <div class="p-4 border rounded-lg bg-white shadow-sm space-y-4">
+    <h2 class="text-xl font-semibold">{{ id ? "Edit Upload" : "Create Upload" }}</h2>
+
+    <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="block text-sm font-medium">Client ID</label>
+        <input v-model="clientId" type="text" class="border rounded w-full p-2" />
       </div>
-    </form>
+
+      <div>
+        <label class="block text-sm font-medium">Music ID</label>
+        <input v-model="musicId" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Title</label>
+        <input v-model="title" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Platform</label>
+        <input v-model="platform" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Platform ID</label>
+        <input v-model="platformId" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Upload URL</label>
+        <input v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Upload Type</label>
+        <input v-model="uploadType" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Uploaded At</label>
+        <input v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
+      </div>
+    </div>
+
+    <div class="flex gap-2 mt-2">
+      <button @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        {{ id ? "Update" : "Create" }}
+      </button>
+      <button @click="cancel" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.upload-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 350px;
-}
-label {
-  display: flex;
-  flex-direction: column;
-  font-weight: 600;
-}
-input {
-  padding: 6px;
-}
-
-.buttons {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-}
+/* opcional */
 </style>

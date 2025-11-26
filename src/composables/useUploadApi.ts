@@ -1,23 +1,50 @@
-import axios from 'axios';
-import type { Upload } from '@/types/upload.ts';
-
-const base = 'http://localhost:8080/upload';
+import type { Upload } from '@/types/upload'
+import { ref } from 'vue'
+import { http } from '@/api/http'
 
 export function useUploadApi() {
+  const uploadList = ref<Upload[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  const findAll = () =>
-    axios.get<Upload[]>(base);
+  const loadUploadList = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const { data } = await http.get<Upload[]>('/upload')
+      uploadList.value = data
+    } catch (err: any) {
+      error.value = err?.message ?? 'Failed to fetch uploads'
+      console.error('useUploadApi.load error', err)
+    } finally {
+      loading.value = false
+    }
+  }
 
-  const findById = (id: string) =>
-    axios.get<Upload>(`${base}/${id}`);
+  const findUploadById = async (id: string) => {
+    const { data } = await http.get<Upload>(`/upload/${id}`)
+    return data
+  }
 
-  const create = (data: Upload) =>
-    axios.post<Upload>(base, data);
+  const createUpload = async (data: Upload) => http.post<Upload>('/upload', data)
 
-  const update = (id: string, data: Upload) =>
-    axios.put<Upload>(`${base}/${id}`, data);
+  const updateUpload = async (id: string, data: Upload) => http.put<Upload>(`/upload/${id}`, data)
 
-  const deletee = (id: string) => axios.delete<Upload>(`${base}/${id}`);
+  const deleteUpload = (id: string) => http.delete<Upload>(`/upload/${id}`)
 
-  return { findAll, findById, create, update, deletee };
+  const removeLocal = (id: string) => {
+    uploadList.value = uploadList.value.filter((u) => u.id !== id)
+  }
+
+  return {
+    uploadList,
+    loading,
+    error,
+    loadUploadList,
+    findUploadById,
+    createUpload,
+    updateUpload,
+    deleteUpload,
+    removeLocal,
+  }
 }

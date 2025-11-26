@@ -4,7 +4,7 @@ import SidebarLayout from '@/layouts/SidebarLayout.vue'
 import MusicList from '@/components/MusicList.vue'
 import MusicDetail from '@/components/MusicDetail.vue'
 import MusicForm from '@/components/MusicForm.vue'
-import { useMusicApi } from '@/composables/useMusicApi'
+import { useMusicApi } from '@/composables/useMusicApi.ts'
 import type { Music } from '@/types/music.ts'
 
 const { musicList, loadMusicList, createMusic, updateMusic, loading, error, deleteMusic, removeLocal } = useMusicApi()
