@@ -5,6 +5,7 @@
     <p><strong>ID:</strong> {{ upload.id }}</p>
     <p><strong>Cliente:</strong> {{ upload.clientId }}</p>
     <p><strong>Music ID:</strong> {{ upload.musicId }}</p>
+    <p><strong>Título:</strong> {{ upload.title }}</p>
     <p><strong>Plataforma:</strong> {{ upload.platform }} ({{ upload.platformId }})</p>
     <p><strong>Upload URL:</strong> <a :href="upload.uploadUrl" target="_blank" class="text-blue-600 underline">{{ upload.uploadUrl }}</a></p>
     <p><strong>Tipo:</strong> {{ upload.uploadType }}</p>
