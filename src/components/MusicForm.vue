@@ -1,109 +1,121 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import type { Music } from '@/types/music.ts'
-import { useMusicApi } from '@/composables/useMusicApi.ts'
+import { ref, watch, defineProps, defineEmits } from "vue";
+import type { Music } from "@/types/music";
 
-interface Props {
-  modelValue?: Music | null
-  onSaved?: () => void;
-}
-const props = defineProps<Props>()
-const emit = defineEmits(['saved', 'cancelled'])
+const props = defineProps<{
+  modelValue: Music | null;
+}>();
 
-/** Form fields **/
-const id = ref<string | null>(null)
-const title = ref("")
-const artist = ref("")
-const tagsString = ref("")
-const releaseYear = ref(0)
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Music | null): void;
+  (e: "saved"): void;
+}>();
 
+const id = ref<string | null>(null);
+const title = ref("");
+const artist = ref("");
+const releaseYear = ref<number | null>(null);
+const tagsString = ref("");
+
+// --- Sincroniza form ←→ modelValue ---
 watch(
   () => props.modelValue,
-  (music) => {
-    if (!music) {
-      id.value = null
-      title.value = ""
-      artist.value = ""
-      tagsString.value = ""
-      return
+  (value) => {
+    if (value) {
+      id.value = value.id ?? null;
+      title.value = value.title;
+      artist.value = value.artist;
+      releaseYear.value = value.releaseYear;
+      tagsString.value = (value.tags ?? []).join(", ");
+    } else {
+      reset();
     }
-
-    id.value = music.id
-    title.value = music.title
-    artist.value = music.artist
-    releaseYear.value = music.releaseYear
-    tagsString.value = music.tags?.join(", ") || ""
   },
   { immediate: true }
 );
 
-const payload = computed(() => ({
-  id: id.value || undefined,
-  title: title.value || undefined,
-  artist: artist.value || undefined,
-  releaseYear: releaseYear.value || undefined,
-  tags: tagsString.value
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean)
-}));
+// --- Limpa o formulário ---
+function reset() {
+  id.value = null;
+  title.value = "";
+  artist.value = "";
+  releaseYear.value = null;
+  tagsString.value = "";
+}
 
+// --- Emite para o pai salvar ---
+async function save() {
+  try {
+    const tags = tagsString.value
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
 
-const { create, update } = useMusicApi()
+    const payload: Music = {
+      id: id.value ?? undefined,
+      title: title.value,
+      artist: artist.value,
+      releaseYear: releaseYear.value ?? 0,
+      tags,
+    };
 
-/**
- * Save data
- */
-const save = async () => {
-  if (id.value) {
-    await update(id.value, payload.value);
-  } else {
-    await create(payload.value);
+    emit("update:modelValue", payload);
+    emit("saved");
+
+    reset();
+  } catch (err) {
+    console.error("Erro ao salvar:", err);
   }
-
-  emit("saved");
-};
-
-const cancel = () => emit('cancelled')
+}
 </script>
 
 <template>
-  <div class="music-form">
-    <h2>{{ props.id ? 'Edit Music' : 'New Music' }}</h2>
-    <form @submit.prevent="save">
-      <label>Title: <input v-model="title" type="text" /></label>
-      <label>Artist: <input v-model="artist" type="text" /></label>
-      <label>Release Year: <input v-model="releaseYear" type="text" /></label>
-      <label>Tags: <input v-model="tagsString" type="text" /></label>
-      <div class="buttons">
-        <button type="submit">
-          {{ id ? 'Update' : 'Save' }}
-        </button>
-        <button type="button" @click="cancel">Cancel</button>
-      </div>
-    </form>
+  <div class="p-4 border rounded-lg bg-white shadow-sm space-y-4">
+    <h2 class="text-xl font-semibold">
+      {{ id ? "Edit Music" : "Create Music" }}
+    </h2>
+
+    <!-- Title -->
+    <div class="space-y-1">
+      <label class="block text-sm font-medium">Title</label>
+      <input v-model="title" type="text" class="border rounded w-full p-2" />
+    </div>
+
+    <!-- Artist -->
+    <div class="space-y-1">
+      <label class="block text-sm font-medium">Artist</label>
+      <input v-model="artist" type="text" class="border rounded w-full p-2" />
+    </div>
+
+    <!-- Release Year -->
+    <div class="space-y-1">
+      <label class="block text-sm font-medium">Release Year</label>
+      <input
+        v-model="releaseYear"
+        type="number"
+        class="border rounded w-full p-2"
+      />
+    </div>
+
+    <!-- Tags -->
+    <div class="space-y-1">
+      <label class="block text-sm font-medium">Tags (comma separated)</label>
+      <input
+        v-model="tagsString"
+        type="text"
+        class="border rounded w-full p-2"
+      />
+    </div>
+
+    <button
+      @click="save"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      {{ id ? "Update" : "Create" }}
+    </button>
   </div>
 </template>
 
 <style scoped>
-.music-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 350px;
-}
-label {
-  display: flex;
-  flex-direction: column;
-  font-weight: 600;
-}
-input {
-  padding: 6px;
-}
-
-.buttons {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-}
+/* opcional */
 </style>

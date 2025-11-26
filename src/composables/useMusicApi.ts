@@ -1,23 +1,48 @@
-import axios from 'axios';
-import type { Music } from '@/types/music.ts';
-
-const base = 'http://localhost:8080/music';
+import type { Music } from '@/types/music.ts'
+import { ref } from 'vue'
+import { http } from '@/api/http.ts'
 
 export function useMusicApi() {
+  const musicList = ref<Music[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
 
-  const findAll = () =>
-    axios.get<Music[]>(base);
+  const loadMusicList = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const { data } = await http.get<Music[]>('/music')
+      musicList.value = data
+    } catch (err: any) {
+      error.value = err?.message ?? 'Failed to fetch music'
+      console.error('useMusicApí.load error', err)
+    } finally {
+      loading.value = false
+    }
+  }
 
-  const findById = (id: string) =>
-    axios.get<Music>(`${base}/${id}`);
+  const findMusicById = async (id: string) => {
+    const { data } = await http.get<Music>(`/music/${id}`)
+    return data
+  }
 
-  const create = (data: Music) =>
-    axios.post<Music>(base, data);
+  const createMusic = async (data: Music) => http.post<Music>('/music', data)
 
-  const update = (id: string, data: Music) =>
-    axios.put<Music>(`${base}/${id}`, data);
+  const updateMusic = async (id: string, data: Music) => http.put<Music>(`/music/${id}`, data)
 
-  const deletee = (id: string) => axios.delete<Music>(`${base}/${id}`);
+  const deleteMusic = (id: string) => http.delete<Music>(`/music/${id}`)
 
-  return { findAll, findById, create, update, deletee };
+  const removeLocal = (id: string) => musicList.value.filter((music) => music.id !== id)
+
+  return {
+    musicList,
+    loading,
+    error,
+    loadMusicList,
+    findMusicById,
+    createMusic,
+    updateMusic,
+    deleteMusic,
+    removeLocal,
+  }
 }

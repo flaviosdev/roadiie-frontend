@@ -1,67 +1,116 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useMusicApi } from '@/composables/useMusicApi'
+import { computed, onMounted, ref } from 'vue'
+import SidebarLayout from '@/layouts/SidebarLayout.vue'
+import MusicList from '@/components/MusicList.vue'
+import MusicDetail from '@/components/MusicDetail.vue'
 import MusicForm from '@/components/MusicForm.vue'
+import { useMusicApi } from '@/composables/useMusicApi'
 import type { Music } from '@/types/music.ts'
 
-const { findAll, deletee } = useMusicApi()
+const { musicList, loadMusicList, createMusic, updateMusic, loading, error, deleteMusic, removeLocal } = useMusicApi()
 
-const list = ref<Music[]>([])
-const showForm = ref(false)
-const selectedMusic = ref<Music | null>(null)
+const selectedId = ref<string | null>(null)
+const isFormOpen = ref(false)
+const formMusic = ref<Music | null>(null)
 
-const load = async () => {
-  const { data } = await findAll()
-  list.value = data
+onMounted(() => {
+  loadMusicList()
+})
+
+const selectedMusic = computed(() => musicList.value.find(music => music.id === selectedId.value) ?? null)
+
+function selectMusic(id: string) {
+  selectedId.value = id
+  isFormOpen.value = false
 }
 
-const createNew = () => {
-  //editId.value = null
-  showForm.value = true
+function onCreateMusic() {
+  formMusic.value = null
+  isFormOpen.value = true
 }
 
-const edit = (music: Music) => {
-  selectedMusic.value = music
-  showForm.value = true
+function editMusic(music: Music) {
+  formMusic.value = { ...music }
+  isFormOpen.value = true
 }
 
-const deleteMusic = async (id: string) => {
+async function handleDelete(musicId: string) {
   try {
-    await deletee(id)
-    await load()
-  } catch (error) {
-    console.log(error)
+    await deleteMusic(musicId)
+    removeLocal(musicId)
+  } catch (err) {
+    console.error(err)
   }
 }
 
-const closeForm = () => {
-  showForm.value = false
+async function onFormSaved() {
+  try {
+    if (!formMusic.value) {
+      // nada a fazer (proteção)
+      isFormOpen.value = false
+      return
+    }
+
+    const payload = formMusic.value as Music
+
+    if (payload.id) {
+      await updateMusic(payload.id, payload)
+    } else {
+      await createMusic(payload)
+    }
+
+    await loadMusicList()   // refresh
+  } catch (err) {
+    console.error('Erro ao salvar música:', err)
+    // opcional: mostrar toast/banner de erro
+  } finally {
+    isFormOpen.value = false
+    formMusic.value = null
+  }
 }
 
-const onSaved = async () => {
-  showForm.value = false
-  await load()
+function closeForm() {
+  isFormOpen.value = false
 }
-
-onMounted(load)
 </script>
 
 <template>
-  <div>
-    <h1>Music</h1>
+  <SidebarLayout>
+    <template #sidebar>
+      <MusicList
+        :musicList="musicList"
+        :selectedId="selectedId"
+        @select="selectMusic"
+        @create="onCreateMusic"
+      />
+    </template>
 
-    <!-- CREATE BUTTON -->
-    <button @click="createNew">New Music</button>
+    <div class="p-6">
+      <div v-if="loading">Loading...</div>
+      <div v-if="error" class="text-red-600">{{ error }}</div>
 
-    <!-- LIST -->
-    <ul>
-      <li v-for="m in list" :key="m.id">
-        {{ m.title }} - {{ m.artist }} <button @click="edit(m)">Edit</button> /
-        <button @click="deleteMusic(m.id!)">Delete</button> /
-      </li>
-    </ul>
+      <!-- Detail area -->
+      <MusicDetail
+        v-if="selectedMusic && !isFormOpen"
+        :music="selectedMusic"
+        @edit="editMusic"
+        @delete="handleDelete"
+      />
 
-    <!-- FORM -->
-    <MusicForm v-if="showForm" :model-value="selectedMusic" @saved="onSaved" @cancelled="closeForm" />
-  </div>
+      <!-- Form area (create OR edit) -->
+      <MusicForm
+        v-if="isFormOpen"
+        v-model="formMusic"
+        @saved="onFormSaved"
+        @cancelled="closeForm"
+      />
+
+
+
+      <!-- When neither detail nor form is open -->
+      <div v-if="!selectedMusic && !isFormOpen" class="text-gray-600">
+        Selecione uma música ou crie uma nova.
+      </div>
+    </div>
+  </SidebarLayout>
 </template>
