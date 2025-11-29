@@ -29,7 +29,6 @@ const uploadedAtString = ref('') // ISO string for input type="datetime-local"
 const musicQueryResults = ref<Music[]>([])
 const musicLoading = ref(false)
 
-// sync form <- modelValue
 watch(
   () => props.modelValue,
   (value) => {
@@ -40,7 +39,7 @@ watch(
       platform.value = value.platform ?? ''
       platformId.value = value.platformId ?? ''
       uploadUrl.value = value.uploadUrl ?? ''
-      uploadTagsString.value = (value.uploadTags ?? []).join(", ")
+      uploadTagsString.value = (value.uploadTags ?? []).join(', ')
       uploadedAtString.value = value.uploadedAt ? toInputDateTime(value.uploadedAt) : ''
     } else {
       reset()
@@ -74,8 +73,8 @@ const onCreateMusic = async (q: string) => {
   musicQueryResults.value.push(data)
 }
 
-const onSelectMusic = async (q: string) => {
-  musicId.value = id
+function clearItems() {
+
 }
 
 function toInputDateTime(d: string | Date) {
@@ -97,6 +96,11 @@ function fromInputDateTime(s: string) {
 
 async function save() {
   try {
+    const uploadTags = uploadTagsString.value
+      .split(',')
+      .map((ut) => ut.trim())
+      .filter((ut) => ut.length > 0)
+
     const uploadedAt = fromInputDateTime(uploadedAtString.value)
     const payload: Upload = {
       id: id.value ?? undefined,
@@ -105,7 +109,7 @@ async function save() {
       platform: platform.value,
       platformId: platformId.value,
       uploadUrl: uploadUrl.value,
-      uploadType: uploadType.value,
+      uploadTags,
       uploadedAt: uploadedAt ?? new Date(),
     }
 
@@ -127,14 +131,13 @@ function cancel() {
     <h2 class="text-xl font-semibold">{{ id ? 'Edit Upload' : 'Create Upload' }}</h2>
 
     <div class="grid grid-cols-1 gap-3">
-
       <MusicSelector
         v-model="musicId"
         :items="musicQueryResults"
         :loading="musicLoading"
-        @select="onSelectMusic"
         @search="onSearchMusic"
         @create="onCreateMusic"
+        @clear-list="clearList"
       />
 
       <div>
@@ -159,7 +162,7 @@ function cancel() {
 
       <div>
         <label class="block text-sm font-medium">Upload Type</label>
-        <input v-model="uploadType" type="text" class="border rounded w-full p-2" />
+        <input v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>

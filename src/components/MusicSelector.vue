@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Music } from '@/types/music.ts'
-import { watch, ref, emit } from 'vue'
+import { watch, ref, defineEmits } from 'vue'
 
 defineProps<{
   items: Music[]
@@ -14,6 +14,11 @@ const emit = defineEmits<{
   (e: 'create', name: string): void
 }>()
 
+function onSelectMusic(music: Music) {
+  query.value = music.title
+  emit('update:modelValue', music.id)
+}
+
 const query = ref('')
 watch(query, (val) => {
   if (val.length >= 2) emit('search', val)
@@ -24,7 +29,7 @@ watch(query, (val) => {
   <div>
     <input v-model="query" type="text" class="input border rounded w-full p-2" />
     <ul v-if="items.length">
-      <li v-for="music in items" :key="music.id" @click="$emit('update:modelValue', music.id)">
+      <li v-for="music in items" :key="music.id" @click="onSelectMusic(music)">
         {{ music.title }}
       </li>
     </ul>
