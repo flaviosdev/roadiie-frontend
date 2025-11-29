@@ -5,6 +5,7 @@
     <p>ID: {{ music.id}}</p>
     <p>Artista: {{ music.artist}}</p>
     <p>Ano de lançamento: {{ music.releaseYear}}</p>
+    <p>Status: {{ music.status}}</p>
 
     <button class="px-3 py-1 bg-yellow-600 text-white rounded"
     @click="$emit('edit', music)">

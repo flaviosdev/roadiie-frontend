@@ -26,6 +26,11 @@ export function useMusicApi() {
     return data
   }
 
+  const searchMusic = async (query: string) => {
+    if (!query || query.length < 2) return { data: []}
+    return http.get(`/music/search?q=${encodeURIComponent(query)}`)
+  }
+
   const createMusic = async (data: Music) => http.post<Music>('/music', data)
 
   const updateMusic = async (id: string, data: Music) => http.put<Music>(`/music/${id}`, data)
@@ -44,5 +49,6 @@ export function useMusicApi() {
     updateMusic,
     deleteMusic,
     removeLocal,
+    searchMusic,
   }
 }

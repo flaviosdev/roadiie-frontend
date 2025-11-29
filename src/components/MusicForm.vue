@@ -1,46 +1,44 @@
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from "vue";
-import type { Music } from "@/types/music";
+import { ref, watch, defineProps, defineEmits } from "vue"
+import type { Music } from "@/types/music"
 
 const props = defineProps<{
-  modelValue: Music | null;
-}>();
+  modelValue: Music | null
+}>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: Music | null): void;
-  (e: "saved"): void;
-}>();
+  (e: "update:modelValue", value: Music | null): void
+  (e: "saved"): void
+}>()
 
-const id = ref<string | null>(null);
-const title = ref("");
-const artist = ref("");
-const releaseYear = ref<number | null>(null);
-const tagsString = ref("");
+const id = ref<string | null>(null)
+const title = ref("")
+const artist = ref("")
+const releaseYear = ref<number | null>(null)
+const tagsString = ref("")
 
-// --- Sincroniza form ←→ modelValue ---
 watch(
   () => props.modelValue,
   (value) => {
     if (value) {
-      id.value = value.id ?? null;
-      title.value = value.title;
-      artist.value = value.artist;
-      releaseYear.value = value.releaseYear;
-      tagsString.value = (value.tags ?? []).join(", ");
+      id.value = value.id ?? null
+      title.value = value.title
+      artist.value = value.artist
+      releaseYear.value = value.releaseYear
+      tagsString.value = (value.tags ?? []).join(", ")
     } else {
-      reset();
+      reset()
     }
   },
   { immediate: true }
-);
+)
 
-// --- Limpa o formulário ---
 function reset() {
-  id.value = null;
-  title.value = "";
-  artist.value = "";
-  releaseYear.value = null;
-  tagsString.value = "";
+  id.value = null
+  title.value = ""
+  artist.value = ""
+  releaseYear.value = null
+  tagsString.value = ""
 }
 
 // --- Emite para o pai salvar ---
@@ -49,7 +47,7 @@ async function save() {
     const tags = tagsString.value
       .split(",")
       .map((t) => t.trim())
-      .filter((t) => t.length > 0);
+      .filter((t) => t.length > 0)
 
     const payload: Music = {
       id: id.value ?? undefined,
@@ -57,14 +55,14 @@ async function save() {
       artist: artist.value,
       releaseYear: releaseYear.value ?? 0,
       tags,
-    };
+    }
 
-    emit("update:modelValue", payload);
-    emit("saved");
+    emit("update:modelValue", payload)
+    emit("saved")
 
-    reset();
+    reset()
   } catch (err) {
-    console.error("Erro ao salvar:", err);
+    console.error("Erro ao salvar:", err)
   }
 }
 </script>
