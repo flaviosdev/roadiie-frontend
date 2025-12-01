@@ -38,7 +38,7 @@ watch(
       title.value = value.title ?? ''
       platform.value = value.platform ?? ''
       platformId.value = value.platformId ?? ''
-      uploadUrl.value = value.uploadUrl ?? ''
+      uploadUrl.value = value.videoId ?? ''
       uploadTagsString.value = (value.uploadTags ?? []).join(', ')
       uploadedAtString.value = value.uploadedAt ? toInputDateTime(value.uploadedAt) : ''
     } else {
@@ -108,7 +108,7 @@ async function save() {
       title: title.value,
       platform: platform.value,
       platformId: platformId.value,
-      uploadUrl: uploadUrl.value,
+      videoId: uploadUrl.value,
       uploadTags,
       uploadedAt: uploadedAt ?? new Date(),
     }

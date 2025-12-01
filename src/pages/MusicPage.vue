@@ -7,7 +7,7 @@ import MusicForm from '@/components/MusicForm.vue'
 import { useMusicApi } from '@/composables/useMusicApi.ts'
 import type { Music } from '@/types/music.ts'
 
-const { musicList, loadMusicList, createMusic, updateMusic, loading, error, deleteMusic, removeLocal } = useMusicApi()
+const { musicList, loadMusicList, createMusic, updateMusic, loading, error, deleteMusic } = useMusicApi()
 
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
@@ -37,7 +37,6 @@ function editMusic(music: Music) {
 async function handleDelete(musicId: string) {
   try {
     await deleteMusic(musicId)
-    removeLocal(musicId)
   } catch (err) {
     console.error(err)
   }

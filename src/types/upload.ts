@@ -5,7 +5,7 @@ export interface Upload {
   title: string
   platform: string
   platformId: string
-  uploadUrl: string
+  videoId: string
   uploadTags: string[]
   uploadedAt: Date
 }

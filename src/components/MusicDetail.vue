@@ -20,7 +20,7 @@ defineProps<{
 }>()
 
 function formatTags(tags: string[]) {
-  if (!tags || tags.length) return '[sem tags]'
+  if (!tags || !tags.length) return '[sem tags]'
   return tags.join(', ')
 }
 </script>
