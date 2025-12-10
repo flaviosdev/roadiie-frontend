@@ -43,6 +43,10 @@ async function handleDelete(uploadId: string) {
   }
 }
 
+function onConnect() {
+  console.log('Connect')
+}
+
 async function onFormSaved() {
   try {
     if (!formUpload.value) {
@@ -80,6 +84,7 @@ function closeForm() {
         :selectedId="selectedId"
         @select="selectUpload"
         @create="onCreateUpload"
+        @connect="onConnect"
       />
     </template>
 

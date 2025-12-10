@@ -36,7 +36,6 @@ watch(
       id.value = value.id ?? null
       musicId.value = value.musicId ?? ''
       title.value = value.title ?? ''
-      platform.value = value.platform ?? ''
       platformId.value = value.platformId ?? ''
       uploadUrl.value = value.videoId ?? ''
       uploadTagsString.value = (value.uploadTags ?? []).join(', ')
@@ -52,7 +51,6 @@ function reset() {
   id.value = null
   musicId.value = ''
   title.value = ''
-  platform.value = ''
   platformId.value = ''
   uploadUrl.value = ''
   uploadTagsString.value = ''
@@ -68,9 +66,11 @@ const onSearchMusic = async (q: string) => {
 
 const onCreateMusic = async (q: string) => {
   const payload: Music = { title: q }
-  const { data } = await createMusic(payload)
-  musicId.value = data.id
-  musicQueryResults.value.push(data)
+  const resp = await createMusic(payload)
+  const newMusic = resp.data as Music
+
+  musicId.value = newMusic.id
+  musicQueryResults.value.push(newMusic)
 }
 
 function clearItems() {
@@ -137,7 +137,6 @@ function cancel() {
         :loading="musicLoading"
         @search="onSearchMusic"
         @create="onCreateMusic"
-        @clear-list="clearList"
       />
 
       <div>

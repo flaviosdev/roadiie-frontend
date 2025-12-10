@@ -2,16 +2,19 @@
   <div class="space-y-4">
     <h1 class="text-2xl font-bold">{{ upload.title }}</h1>
 
+    <div>
+      <img :src="`https://i.ytimg.com/vi/${upload.videoId}/default.jpg`" />
+    </div>
+
     <p><strong>ID:</strong> {{ upload.id }}</p>
-    <p><strong>Cliente:</strong> {{ upload.clientId }}</p>
     <p><strong>Musica:</strong> {{ music?.title || upload.musicId }}</p>
     <p><strong>Título:</strong> {{ upload.title }}</p>
-    <p><strong>Plataforma:</strong> ({{ upload.platformId }})</p>
+    <p><strong>ID da Plataforma:</strong> {{ upload.platformId }}</p>
     <p>
       <strong>Upload URL:</strong>
-      <a :href="upload.videoId" target="_blank" class="text-blue-600 underline">{{
-          upload.videoId
-        }}</a>
+      <a :href="formatVideoUrl(upload.videoId)" target="_blank" class="text-blue-600 underline">{{
+        upload.videoId
+      }}</a>
     </p>
     <p><strong>Tags do Upload:</strong> {{ formatTags(upload.uploadTags) }}</p>
     <p><strong>Upload em:</strong> {{ formatDate(upload.uploadedAt) }}</p>
@@ -54,5 +57,13 @@ function formatDate(d: string | Date | undefined) {
 function formatTags(tags: string[]) {
   if (!tags || !tags.length) return '[sem tags]'
   return tags.join(', ')
+}
+
+function formatVideoUrl(videoId: string) {
+  if (!videoId) {
+    return ''
+  }
+
+  return `https://www.youtube.com/watch?v=${videoId}`
 }
 </script>

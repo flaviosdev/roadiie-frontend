@@ -2,12 +2,19 @@
   <div>
     <div class="flex items-center justify-between mb-3">
       <h2 class="font-bold text-lg">Uploads</h2>
-      <button
-        class="px-2 py-1 rounded bg-blue-600 text-white"
-        @click="$emit('create')"
-      >
-        + Novo Upload
-      </button>
+      <div>
+        <button
+          class="px-2 py-1 rounded bg-blue-600 text-white"
+          @click="$emit('create')"
+        >
+          + Novo Upload
+        </button> <br> <button
+          class="px-2 py-1 rounded bg-blue-600 text-white"
+          @click="$emit('connect')"
+        >
+          Conectar com Youtube
+        </button>
+      </div>
     </div>
 
     <ul class="space-y-1">
@@ -37,7 +44,7 @@ const props = defineProps<{
   selectedId: string | null
 }>()
 
-const emit = defineEmits(['select', 'create'])
+const emit = defineEmits(['select', 'create', 'connect'])
 
 function formatDate(d: string | Date | undefined) {
   if (!d) return '-'
