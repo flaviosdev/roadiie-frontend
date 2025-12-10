@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import SidebarLayout from '@/layouts/SidebarLayout.vue'
-import UploadList from '@/components/UploadList.vue'
-import UploadDetail from '@/components/UploadDetail.vue'
-import UploadForm from '@/components/UploadForm.vue'
+import UploadForm from '@/components/upload/UploadForm.vue'
 import { useUploadApi } from '@/composables/useUploadApi'
 import type { Upload } from '@/types/upload'
 import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
+import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
 
-const { uploadList, loadUploadList, createUpload, updateUpload, loading, error, deleteUpload, removeLocal } = useUploadApi()
+const {
+  uploadList,
+  loadUploadList,
+  createUpload,
+  updateUpload,
+  loading,
+  error,
+  deleteUpload,
+  removeLocal,
+} = useUploadApi()
 
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
@@ -18,11 +25,16 @@ onMounted(() => {
   loadUploadList()
 })
 
-const selectedUpload = computed(() => uploadList.value.find(u => u.id === selectedId.value) ?? null)
+const selectedUpload = computed(
+  () => uploadList.value.find((u) => u.id === selectedId.value) ?? null,
+)
 
 function selectUpload(id: string) {
-  selectedId.value = id
-  isFormOpen.value = false
+  const upload = uploadList.value.find(u => u.id === id)
+  if (!upload) return
+
+  formUpload.value = { ...upload }
+  isFormOpen.value = true
 }
 
 function onCreateUpload() {
@@ -78,8 +90,13 @@ function closeForm() {
 </script>
 
 <template>
-  <UploadCardGrid
-    :uploadList="uploadList"
-    @select="selectUpload"
-  />
+  <UploadCardGrid :uploadList="uploadList" @select="selectUpload" />
+  <UploadEditPanel :show="isFormOpen" @close="closeForm">
+    <UploadForm
+      v-if="isFormOpen"
+      v-model="formUpload"
+      @saved="onFormSaved"
+      @cancelled="closeForm"
+    />
+  </UploadEditPanel>
 </template>

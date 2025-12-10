@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from 'vue'
-import type { Upload } from '@/types/upload'
+import type { Upload } from '@/types/upload.ts'
 import { useMusicApi } from '@/composables/useMusicApi.ts'
 import MusicSelector from '@/components/MusicSelector.vue'
 import type { Music } from '@/types/music.ts'
@@ -127,8 +127,10 @@ function cancel() {
 </script>
 
 <template>
-  <div class="p-4 border rounded-lg bg-white shadow-sm space-y-4">
-    <h2 class="text-xl font-semibold">{{ id ? 'Edit Upload' : 'Create Upload' }}</h2>
+  <div class="space-y-4">
+    <h2 class="text-xl font-semibold">
+      {{ id ? 'Edit Upload' : 'Create Upload' }}
+    </h2>
 
     <div class="grid grid-cols-1 gap-3">
       <MusicSelector
@@ -160,7 +162,7 @@ function cancel() {
       </div>
 
       <div>
-        <label class="block text-sm font-medium">Upload Type</label>
+        <label class="block text-sm font-medium">Upload Tags</label>
         <input v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
       </div>
 
