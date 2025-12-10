@@ -6,6 +6,7 @@ import UploadDetail from '@/components/UploadDetail.vue'
 import UploadForm from '@/components/UploadForm.vue'
 import { useUploadApi } from '@/composables/useUploadApi'
 import type { Upload } from '@/types/upload'
+import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
 
 const { uploadList, loadUploadList, createUpload, updateUpload, loading, error, deleteUpload, removeLocal } = useUploadApi()
 
@@ -77,38 +78,8 @@ function closeForm() {
 </script>
 
 <template>
-  <SidebarLayout>
-    <template #sidebar>
-      <UploadList
-        :uploadList="uploadList"
-        :selectedId="selectedId"
-        @select="selectUpload"
-        @create="onCreateUpload"
-        @connect="onConnect"
-      />
-    </template>
-
-    <div class="p-6">
-      <div v-if="loading">Loading...</div>
-      <div v-if="error" class="text-red-600">{{ error }}</div>
-
-      <UploadDetail
-        v-if="selectedUpload && !isFormOpen"
-        :upload="selectedUpload"
-        @edit="editUpload"
-        @delete="handleDelete"
-      />
-
-      <UploadForm
-        v-if="isFormOpen"
-        v-model="formUpload"
-        @saved="onFormSaved"
-        @cancelled="closeForm"
-      />
-
-      <div v-if="!selectedUpload && !isFormOpen" class="text-gray-600">
-        Selecione um upload ou crie um novo.
-      </div>
-    </div>
-  </SidebarLayout>
+  <UploadCardGrid
+    :uploadList="uploadList"
+    @select="selectUpload"
+  />
 </template>

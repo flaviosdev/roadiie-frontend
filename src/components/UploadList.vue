@@ -8,11 +8,6 @@
           @click="$emit('create')"
         >
           + Novo Upload
-        </button> <br> <button
-          class="px-2 py-1 rounded bg-blue-600 text-white"
-          @click="$emit('connect')"
-        >
-          Conectar com Youtube
         </button>
       </div>
     </div>
