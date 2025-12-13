@@ -20,9 +20,11 @@ const emit = defineEmits<{
 const id = ref<string | null>(null)
 const musicId = ref('')
 const title = ref('')
+const description = ref('')
 const platform = ref('')
 const platformId = ref('')
 const uploadUrl = ref('')
+const status = ref('')
 const uploadTagsString = ref('')
 const uploadedAtString = ref('') // ISO string for input type="datetime-local"
 
@@ -36,8 +38,10 @@ watch(
       id.value = value.id ?? null
       musicId.value = value.musicId ?? ''
       title.value = value.title ?? ''
+      description.value = value.description ?? ''
       platformId.value = value.platformId ?? ''
       uploadUrl.value = value.videoId ?? ''
+      status.value = value.status ?? ''
       uploadTagsString.value = (value.uploadTags ?? []).join(', ')
       uploadedAtString.value = value.uploadedAt ? toInputDateTime(value.uploadedAt) : ''
     } else {
@@ -51,6 +55,7 @@ function reset() {
   id.value = null
   musicId.value = ''
   title.value = ''
+  description.value = ''
   platformId.value = ''
   uploadUrl.value = ''
   uploadTagsString.value = ''
@@ -64,6 +69,11 @@ const onSearchMusic = async (q: string) => {
   musicLoading.value = false
 }
 
+function isImported() {
+  console.log(status.value)
+  return status.value === 'IMPORTED'
+}
+
 const onCreateMusic = async (q: string) => {
   const payload: Music = { title: q }
   const resp = await createMusic(payload)
@@ -71,10 +81,6 @@ const onCreateMusic = async (q: string) => {
 
   musicId.value = newMusic.id
   musicQueryResults.value.push(newMusic)
-}
-
-function clearItems() {
-
 }
 
 function toInputDateTime(d: string | Date) {
@@ -132,7 +138,14 @@ function cancel() {
       {{ id ? 'Edit Upload' : 'Create Upload' }}
     </h2>
 
+
+      <label class="block text-sm font-medium">Vídeos importados via API não podem ser editados</label>
+
+
     <div class="grid grid-cols-1 gap-3">
+      <div>
+        <label class="block text-sm font-medium">Música</label>
+      </div>
       <MusicSelector
         v-model="musicId"
         :items="musicQueryResults"
@@ -143,37 +156,49 @@ function cancel() {
 
       <div>
         <label class="block text-sm font-medium">Title</label>
-        <input v-model="title" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="title" type="text" class="border rounded w-full p-2" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1"> Description </label>
+
+        <textarea
+          v-model="description"
+          :readonly="isImported"
+          rows="6"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
+          placeholder="Write a detailed description..."
+        ></textarea>
       </div>
 
       <div>
         <label class="block text-sm font-medium">Platform</label>
-        <input v-model="platform" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="platform" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Platform ID</label>
-        <input v-model="platformId" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="platformId" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload URL</label>
-        <input v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload Tags</label>
-        <input v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Uploaded At</label>
-        <input v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
+        <input :readonly="isImported" v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
       </div>
     </div>
 
     <div class="flex gap-2 mt-2">
-      <button @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button :readonly="isImported" @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         {{ id ? 'Update' : 'Create' }}
       </button>
       <button @click="cancel" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>

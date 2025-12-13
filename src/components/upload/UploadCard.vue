@@ -16,6 +16,13 @@
       </div>
     </div>
 
+    <div class="flex gap-3 text-gray-600 text-sm mt-2">
+      <span>👁 {{ compactNumber(upload.summary?.totalViews) }}</span>
+      <span>👍 {{ compactNumber(upload.summary?.totalLikes) }}</span>
+      <span>💬 {{ compactNumber(upload.summary?.totalComments) }}</span>
+      <span>📊 {{ compactNumber(upload.summary?.score )}}</span>
+    </div>
+
     <div class="font-semibold text-gray-900 line-clamp-2">
       {{ upload.title }}
     </div>
@@ -55,6 +62,12 @@ function formatDate(d: string | Date | undefined) {
   if (!d) return '-'
   const date = typeof d === 'string' ? new Date(d) : d
   return date.toLocaleString()
+}
+
+function compactNumber(n: number): string {
+  if (n < 1000) return n.toString()
+  if (n < 1_000_000) return (n/1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k'
+  return (n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1) + 'M'
 }
 </script>
 

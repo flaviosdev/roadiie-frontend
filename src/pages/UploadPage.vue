@@ -5,6 +5,7 @@ import { useUploadApi } from '@/composables/useUploadApi'
 import type { Upload } from '@/types/upload'
 import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
 import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
+import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
 
 const {
   uploadList,
@@ -92,11 +93,9 @@ function closeForm() {
 <template>
   <UploadCardGrid :uploadList="uploadList" @select="selectUpload" />
   <UploadEditPanel :show="isFormOpen" @close="closeForm">
-    <UploadForm
-      v-if="isFormOpen"
-      v-model="formUpload"
-      @saved="onFormSaved"
-      @cancelled="closeForm"
+    <UploadAnalysisPanel
+      v-if="isFormOpen && formUpload"
+      :upload="formUpload"
     />
   </UploadEditPanel>
 </template>

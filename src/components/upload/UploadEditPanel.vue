@@ -2,7 +2,7 @@
   <transition name="slide-in">
     <div v-if="show" class="fixed inset-0 z-50 flex bg-black/40">
       <div class="flex-1" @click="close"></div>
-      <div class="w-full max-w-lg bg-white h-full shadow-xl p-6 overflow-y-auto">
+      <div class="w-full max-w-2xl bg-white h-full shadow-xl p-6 overflow-y-auto">
         <slot />
       </div>
     </div>
