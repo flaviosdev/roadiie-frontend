@@ -48,10 +48,19 @@ const activeTab = ref<TabKey>('overview')
     </div>
 
     <div class="flex-1 overflow-y-auto">
+
       <UploadOverviewTab v-if="activeTab === 'overview'" :upload="upload" />
+
       <UploadTimelineTab v-if="activeTab === 'timeline'" :upload="upload" />
-      <UploadDetailsTab v-if="activeTab === 'details'" :upload="upload" />
+
+      <UploadDetailsTab
+        v-if="activeTab === 'details'"
+        :upload="upload"
+        @updated="$emit('updated', $event)"
+      />
+
       <UploadToolsTab v-if="activeTab === 'tools'" :upload="upload" />
+
     </div>
   </div>
 </template>

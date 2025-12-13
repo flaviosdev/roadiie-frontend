@@ -1,9 +1,22 @@
 <script setup lang="ts">
 import type { Upload } from '@/types/upload'
+import { useUploadMetricsApi } from '@/composables/useUploadMetricsApi.ts'
+import { onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{
   upload: Upload
 }>()
+
+const { snapshots, loading, loadSnapshots, reset } = useUploadMetricsApi(props.upload.id)
+
+onMounted(() => {
+  loadSnapshots()
+})
+
+onUnmounted(() => {
+  reset()
+})
+
 </script>
 
 <template>

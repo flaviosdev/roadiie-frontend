@@ -127,9 +127,6 @@ async function save() {
   }
 }
 
-function cancel() {
-  emit('cancelled')
-}
 </script>
 
 <template>
@@ -201,7 +198,6 @@ function cancel() {
       <button :readonly="isImported" @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         {{ id ? 'Update' : 'Create' }}
       </button>
-      <button @click="cancel" class="bg-gray-300 px-4 py-2 rounded">Cancel</button>
     </div>
   </div>
 </template>
