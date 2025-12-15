@@ -61,17 +61,20 @@ function buildChart() {
         {
           label: 'Views',
           data: snapshots.value.map(s => s.views),
-          tension: 0.3
+          tension: 0.3,
+          backgroundColor: 'rgba(255, 0, 0, 0.5)',
         },
         {
           label: 'Likes',
           data: snapshots.value.map(s => s.likes),
-          tension: 0.3
+          tension: 0.3,
+          backgroundColor: 'rgba(0, 255, 0, 0.5)',
         },
         {
           label: 'Comments',
           data: snapshots.value.map(s => s.comments),
-          tension: 0.3
+          tension: 0.3,
+          backgroundColor: 'rgba(0, 0, 255, 0.5)',
         }
       ]
     },
