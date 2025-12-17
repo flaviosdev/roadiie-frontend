@@ -1,7 +1,7 @@
 export interface UploadMetricsSnapshot {
   id: string;
   uploadId: string;
-  day: number;
+  date: number;
   views: number;
   likes: number;
   comments: number;

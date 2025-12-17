@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import type { Upload } from '@/types/upload.ts'
 import UploadOverviewTab from '@/components/upload/tabs/UploadOverviewTab.vue'
-import UploadTimelineTab from '@/components/upload/tabs/UploadTimelineTab.vue'
+import UploadTimelineTab from '@/components/upload/tabs/timeline/UploadTimelineTab.vue'
 import UploadDetailsTab from '@/components/upload/tabs/UploadDetailsTab.vue'
 import UploadToolsTab from '@/components/upload/tabs/UploadToolsTab.vue'
 

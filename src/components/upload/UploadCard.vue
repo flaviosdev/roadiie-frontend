@@ -20,7 +20,7 @@
       <span>👁 {{ compactNumber(upload.summary?.totalViews) }}</span>
       <span>👍 {{ compactNumber(upload.summary?.totalLikes) }}</span>
       <span>💬 {{ compactNumber(upload.summary?.totalComments) }}</span>
-      <span>📊 {{ compactNumber(upload.summary?.score )}}</span>
+      <span>📊 {{ compactNumber(upload.summary?.currentScore )}}</span>
     </div>
 
     <div class="font-semibold text-gray-900 line-clamp-2">
@@ -45,14 +45,14 @@ import { computed } from 'vue'
 const props = defineProps<{ upload: Upload }>()
 
 const platformIcon = computed(() => {
-  switch (props.upload.platform) {
+  switch (props.upload.platformId) {
     case 'youtube': return 'YT 📺'
     default: return 'UP ⬆️'
   }
 })
 
 const platformColor = computed(() => {
-  switch (props.upload.platform) {
+  switch (props.upload.platformId) {
     case 'youtube': return 'bg-red-600'
     default: return 'bg-blue-600'
   }

@@ -7,16 +7,6 @@ const props = defineProps<{
   upload: Upload
 }>()
 
-const { snapshots, loading, loadSnapshots, reset } = useUploadMetricsApi(props.upload.id)
-
-onMounted(() => {
-  loadSnapshots()
-})
-
-onUnmounted(() => {
-  reset()
-})
-
 </script>
 
 <template>
@@ -57,7 +47,7 @@ onUnmounted(() => {
         <div class="bg-gray-50 p-3 rounded">
           <div class="text-xs text-gray-500">Score</div>
           <div class="text-lg font-semibold">
-            {{ upload.summary.score }}
+            {{ upload.summary.currentScore }}
           </div>
         </div>
       </div>
