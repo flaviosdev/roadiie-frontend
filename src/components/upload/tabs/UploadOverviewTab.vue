@@ -45,9 +45,9 @@ const props = defineProps<{
         </div>
 
         <div class="bg-gray-50 p-3 rounded">
-          <div class="text-xs text-gray-500">Score</div>
+          <div class="text-xs text-gray-500">Views per day</div>
           <div class="text-lg font-semibold">
-            {{ upload.summary.currentScore }}
+            {{ upload.summary.totalViewsPerDay }}
           </div>
         </div>
       </div>

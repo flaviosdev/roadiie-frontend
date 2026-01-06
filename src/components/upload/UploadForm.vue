@@ -169,11 +169,6 @@ async function save() {
       </div>
 
       <div>
-        <label class="block text-sm font-medium">Platform</label>
-        <input :readonly="isImported" v-model="platform" type="text" class="border rounded w-full p-2" />
-      </div>
-
-      <div>
         <label class="block text-sm font-medium">Platform ID</label>
         <input :readonly="isImported" v-model="platformId" type="text" class="border rounded w-full p-2" />
       </div>

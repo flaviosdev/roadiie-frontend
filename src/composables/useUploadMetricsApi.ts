@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { http } from '@/api/http'
-import type { UploadMetricsSnapshot } from '@/types/upload/metrics/UploadMetricsSnapshot.ts'
+import type { UploadMetricsSnapshot } from '@/types/UploadMetricsSnapshot.ts'
 
 export function useUploadMetricsApi(uploadId: string) {
   const snapshots = ref<UploadMetricsSnapshot[]>([])

@@ -20,7 +20,7 @@
       <span>👁 {{ compactNumber(upload.summary?.totalViews) }}</span>
       <span>👍 {{ compactNumber(upload.summary?.totalLikes) }}</span>
       <span>💬 {{ compactNumber(upload.summary?.totalComments) }}</span>
-      <span>📊 {{ compactNumber(upload.summary?.currentScore )}}</span>
+      <span>📈 {{ compactNumber(upload.summary?.totalViewsPerDay )}}</span>
     </div>
 
     <div class="font-semibold text-gray-900 line-clamp-2">
