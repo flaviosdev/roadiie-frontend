@@ -53,6 +53,7 @@ export function useMusicApi() {
       return data
     }catch(err) {
       console.error('Erro ao criar music', err)
+      return err
     }
   }
 

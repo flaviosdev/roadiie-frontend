@@ -2,6 +2,7 @@
 import { ref, watch, defineProps, defineEmits } from 'vue'
 import type { Upload } from '@/types/upload.ts'
 import { useMusicApi } from '@/composables/useMusicApi.ts'
+import { useUploadApi } from '@/composables/useUploadApi.ts'
 import MusicSelector from '@/components/MusicSelector.vue'
 import type { Music } from '@/types/music.ts'
 
@@ -9,7 +10,8 @@ const props = defineProps<{
   modelValue: Upload | null
 }>()
 
-const { searchMusic, createMusic } = useMusicApi()
+const { searchMusic, createMusic, findMusicById } = useMusicApi()
+const { updateUpload } = useUploadApi()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Upload | null): void
@@ -77,10 +79,9 @@ function isImported() {
 const onCreateMusic = async (q: string) => {
   const payload: Music = { title: q }
   const resp = await createMusic(payload)
-  const newMusic = resp.data as Music
 
-  musicId.value = newMusic.id
-  musicQueryResults.value.push(newMusic)
+  musicId.value = resp.id
+  musicQueryResults.value.push(resp)
 }
 
 function toInputDateTime(d: string | Date) {
@@ -119,7 +120,7 @@ async function save() {
       uploadedAt: uploadedAt ?? new Date(),
     }
 
-    emit('update:modelValue', payload)
+    updateUpload(id.value, payload)
     emit('saved')
     reset()
   } catch (err) {
@@ -135,9 +136,7 @@ async function save() {
       {{ id ? 'Edit Upload' : 'Create Upload' }}
     </h2>
 
-
       <label class="block text-sm font-medium">Vídeos importados via API não podem ser editados</label>
-
 
     <div class="grid grid-cols-1 gap-3">
       <div>

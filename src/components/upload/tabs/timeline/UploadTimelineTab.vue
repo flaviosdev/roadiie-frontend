@@ -58,7 +58,7 @@ const viewsChart = computed(() => [
   },
   {
     label: 'Views per day',
-    data: viewsPerDayScores.value.map((s) => s.value),
+    data: viewsPerDayScores.value.map((s) => { return Math.round(s.value)}),
     borderColor: 'rgb(18,172,21)',
     backgroundColor: 'rgba(22, 163, 74, .15)',
   }
