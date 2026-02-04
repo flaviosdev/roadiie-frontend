@@ -21,6 +21,7 @@ const {
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
 const formUpload = ref<Upload | null>(null)
+const sortAscending = ref(false)
 
 onMounted(() => {
   loadUploadList()
@@ -37,9 +38,60 @@ function selectUpload(id: string) {
 function closeForm() {
   isFormOpen.value = false
 }
+
+function sortByDate() {
+  sortAscending.value = !sortAscending.value
+  uploadList.value.sort((a, b) => {
+    if (sortAscending.value) {
+      return new Date(a.uploadedAt) - new Date(b.uploadedAt)
+    } else {
+      return new Date(b.uploadedAt) - new Date(a.uploadedAt)
+    }
+  })
+}
+
+function sortByViews() {
+  sortAscending.value = !sortAscending.value
+  uploadList.value.sort((a, b) => {
+    if (sortAscending.value) {
+      return a.summary.totalViews - b.summary.totalViews
+    } else {
+      return b.summary.totalViews - a.summary.totalViews
+    }
+  })
+}
+
+function sortByLikes() {
+  sortAscending.value = !sortAscending.value
+  uploadList.value.sort((a, b) => {
+    if (sortAscending.value) {
+      return a.summary.totalLikes - b.summary.totalLikes
+    } else {
+      return b.summary.totalLikes - a.summary.totalLikes
+    }
+  })
+}function sortByComments() {
+  sortAscending.value = !sortAscending.value
+  uploadList.value.sort((a, b) => {
+    if (sortAscending.value) {
+      return a.summary.totalComments - b.summary.totalComments
+    } else {
+      return b.summary.totalComments - a.summary.totalComments
+    }
+  })
+}
+
+
 </script>
 
 <template>
+  <div>
+    Ordenar por:
+    <span v-on:click="sortByDate">Data</span> |
+    <span v-on:click="sortByViews">Mais vistos</span> |
+    <span v-on:click="sortByLikes">Mais curtidos</span> |
+    <span v-on:click="sortByComments">Mais comentados</span> |
+  </div>
   <UploadCardGrid :uploadList="uploadList" @select="selectUpload" />
   <UploadEditPanel :show="isFormOpen" @close="closeForm">
     <UploadAnalysisPanel
