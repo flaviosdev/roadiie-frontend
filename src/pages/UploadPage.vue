@@ -2,14 +2,18 @@
 import { computed, onMounted, ref } from 'vue'
 import { useUploadApi } from '@/composables/useUploadApi'
 import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
-import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
-import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
+import { useUploadSorting } from '@/composables/useUploadSorting.ts'
 
 const { uploadList, loadUploadList } = useUploadApi()
+const { sortedUploads, sortKey, ascending, setSort } = useUploadSorting(uploadList)
 
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
-const sortAscending = ref(false)
+const sortByDateAscending = ref(false)
+const sortByViewsAscending = ref(false)
+const sortByLikeAscending = ref(false)
+const sortByCommentAscending = ref(false)
+const sortByAvgCommentAscending = ref(false)
 
 const selectedUpload = computed(() => uploadList.value.find((u) => u.id === selectedId.value))
 
@@ -22,68 +26,26 @@ function selectUpload(id: string) {
   isFormOpen.value = true
 }
 
-function closeForm() {
-  isFormOpen.value = false
-}
-
 function sortByDate() {
-  sortAscending.value = !sortAscending.value
-  uploadList.value.sort((a, b) => {
-    if (sortAscending.value) {
-      return new Date(a.uploadedAt) - new Date(b.uploadedAt)
-    } else {
-      return new Date(b.uploadedAt) - new Date(a.uploadedAt)
-    }
-  })
+  setSort('date')
 }
 
 function sortByViews() {
-  sortAscending.value = !sortAscending.value
-  uploadList.value.sort((a, b) => {
-    if (sortAscending.value) {
-      return a.summary.totalViews - b.summary.totalViews
-    } else {
-      return b.summary.totalViews - a.summary.totalViews
-    }
-  })
+  setSort('views')
 }
 
 function sortByLikes() {
-  sortAscending.value = !sortAscending.value
-  uploadList.value.sort((a, b) => {
-    if (sortAscending.value) {
-      return a.summary.totalLikes - b.summary.totalLikes
-    } else {
-      return b.summary.totalLikes - a.summary.totalLikes
-    }
-  })
+  setSort('likes')
 }
 
 function sortByComments() {
-  sortAscending.value = !sortAscending.value
-  uploadList.value.sort((a, b) => {
-    if (sortAscending.value) {
-      return a.summary.totalComments - b.summary.totalComments
-    } else {
-      return b.summary.totalComments - a.summary.totalComments
-    }
-  })
+  setSort('comments')
 }
 
 function sortByAverageViews() {
-  sortAscending.value = !sortAscending.value
-  uploadList.value.sort((a, b) => {
-    if (sortAscending.value) {
-      return a.summary.totalViewsPerDay - b.summary.totalViewsPerDay
-    } else {
-      return b.summary.totalViewsPerDay - a.summary.totalViewsPerDay
-    }
-  })
+  setSort('avgViews')
 }
 
-function onUpdatedUpload(upload: Upload) {
-
-}
 </script>
 
 <template>
@@ -119,10 +81,6 @@ function onUpdatedUpload(upload: Upload) {
       />
     </div>
 
-    <UploadCardGrid :uploadList="uploadList" @select="selectUpload" />
+    <UploadCardGrid :uploadList="sortedUploads" @select="selectUpload" />
   </div>
-  <UploadCardGrid :uploadList="uploadList" @select="selectUpload" />
-  <UploadEditPanel :show="isFormOpen" @close="closeForm">
-    <UploadAnalysisPanel v-if="isFormOpen && selectedUpload" :upload="selectedUpload" @updated="onUpdatedUpload"/>
-  </UploadEditPanel>
 </template>
