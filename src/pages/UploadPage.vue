@@ -2,6 +2,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useUploadApi } from '@/composables/useUploadApi'
 import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
+import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
+import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
 import { useUploadSorting } from '@/composables/useUploadSorting.ts'
 
 const { uploadList, loadUploadList } = useUploadApi()
@@ -9,17 +11,17 @@ const { sortedUploads, sortKey, ascending, setSort } = useUploadSorting(uploadLi
 
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
-const sortByDateAscending = ref(false)
-const sortByViewsAscending = ref(false)
-const sortByLikeAscending = ref(false)
-const sortByCommentAscending = ref(false)
-const sortByAvgCommentAscending = ref(false)
 
-const selectedUpload = computed(() => uploadList.value.find((u) => u.id === selectedId.value))
+const selectedUpload = computed(() => sortedUploads.value.find((u) => u.id === selectedId.value))
 
 onMounted(() => {
   loadUploadList()
 })
+
+function closeForm() {
+  isFormOpen.value = false
+  selectedId.value = null
+}
 
 function selectUpload(id: string) {
   selectedId.value = id
@@ -82,5 +84,8 @@ function sortByAverageViews() {
     </div>
 
     <UploadCardGrid :uploadList="sortedUploads" @select="selectUpload" />
+    <UploadEditPanel :show="isFormOpen" @close="closeForm">
+      <UploadAnalysisPanel v-if="isFormOpen && selectedUpload" :upload="selectedUpload" @updated="onUpdatedUpload"/>
+    </UploadEditPanel>
   </div>
 </template>
