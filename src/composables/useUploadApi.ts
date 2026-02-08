@@ -28,7 +28,16 @@ export function useUploadApi() {
 
   const createUpload = async (data: Upload) => http.post<Upload>('/upload', data)
 
-  const updateUpload = async (id: string, data: Upload) => http.put<Upload>(`/upload/${id}`, data)
+  const updateUpload = async (id: string, data: Upload) => {
+    const { data: updated } = await http.put<Upload>(`/upload/${id}`, data)
+
+    uploadList.value = uploadList.value.map((u) => {
+      return u.id === id? updated : u
+      }
+    )
+
+    return updated
+  }
 
   const deleteUpload = (id: string) => http.delete<Upload>(`/upload/${id}`)
 

@@ -1,26 +1,46 @@
 <script setup lang="ts">
 import type { Music } from '@/types/music.ts'
-import { watch, ref, defineEmits } from 'vue'
+import { defineEmits, ref, watch } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   items: Music[]
   loading: boolean
-  modelValue: string | null
+  modelValue: Music | null
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: string | null): void
+  (e: 'update:modelValue', value: Music | null): void
   (e: 'search', q: string): void
   (e: 'create', name: string): void
 }>()
 
 function onSelectMusic(music: Music) {
-  query.value = music.title
-  emit('update:modelValue', music.id)
+  emit('update:modelValue', music)
+  emit('search', '')
 }
 
 const query = ref('')
+const syncingFromModel = ref(false)
+
+watch(
+  () => props.modelValue,
+  (music) => {
+
+    if (music) {
+      query.value = music.title
+      syncingFromModel.value = true
+    } else {
+      query.value = ''
+    }
+    setTimeout(() => {
+      syncingFromModel.value = false
+    })
+  },
+  { immediate: true }
+)
+
 watch(query, (val) => {
+  if (syncingFromModel.value) return
   if (val.length >= 2) emit('search', val)
 })
 </script>
@@ -33,7 +53,7 @@ watch(query, (val) => {
         {{ music.title }}
       </li>
     </ul>
-    <button v-if="query.length >= 2 && !items.length" @click="$emit('create', query)" >
+    <button v-if="query.length >= 2 && !items.length && !modelValue" @click="$emit('create', query)">
       Criar "{{ query }}"
     </button>
 

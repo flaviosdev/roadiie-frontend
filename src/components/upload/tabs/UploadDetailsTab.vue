@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div class="text-sm text-gray-500">Edit upload details and metadata.</div>
 
-    <UploadForm v-model="editableUpload" @saved="onSaved" />
+    <UploadForm v-model="editableUpload" @updatedUpload="onUpdatedUpload" />
   </div>
 </template>
 <script setup lang="ts">
@@ -27,7 +27,7 @@ watch(
   }
 )
 
-function onSaved(updated: Upload) {
+function onUpdatedUpload(updated: Upload): void {
   emit('updated', updated)
 }
 </script>

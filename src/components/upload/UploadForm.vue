@@ -16,11 +16,12 @@ const { updateUpload } = useUploadApi()
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Upload | null): void
   (e: 'saved'): void
+  (e: 'updated'): void
   (e: 'cancelled'): void
 }>()
 
 const id = ref<string | null>(null)
-const musicId = ref('')
+const music = ref<Music | null>(null)
 const title = ref('')
 const description = ref('')
 const platform = ref('')
@@ -35,10 +36,14 @@ const musicLoading = ref(false)
 
 watch(
   () => props.modelValue,
-  (value) => {
+  async (value) => {
     if (value) {
       id.value = value.id ?? null
-      musicId.value = value.musicId ?? ''
+
+      if (value.musicId) {
+        const m = await findMusicById(value.musicId)
+        music.value = m
+      }
       title.value = value.title ?? ''
       description.value = value.description ?? ''
       platformId.value = value.platformId ?? ''
@@ -55,7 +60,6 @@ watch(
 
 function reset() {
   id.value = null
-  musicId.value = ''
   title.value = ''
   description.value = ''
   platformId.value = ''
@@ -65,6 +69,7 @@ function reset() {
 }
 
 const onSearchMusic = async (q: string) => {
+  if (q == '') musicQueryResults.value = []
   musicLoading.value = true
   const { data } = await searchMusic(q)
   musicQueryResults.value = data || []
@@ -80,8 +85,13 @@ const onCreateMusic = async (q: string) => {
   const payload: Music = { title: q }
   const resp = await createMusic(payload)
 
-  musicId.value = resp.id
+  music.value = resp
   musicQueryResults.value.push(resp)
+}
+
+const onGetMusicById = async (id: string) => {
+  const musicResponse = await findMusicById(id)
+  music.value = musicResponse
 }
 
 function toInputDateTime(d: string | Date) {
@@ -111,7 +121,7 @@ async function save() {
     const uploadedAt = fromInputDateTime(uploadedAtString.value)
     const payload: Upload = {
       id: id.value ?? undefined,
-      musicId: musicId.value,
+      musicId: music.value.id,
       title: title.value,
       platform: platform.value,
       platformId: platformId.value,
@@ -120,9 +130,8 @@ async function save() {
       uploadedAt: uploadedAt ?? new Date(),
     }
 
-    updateUpload(id.value, payload)
-    emit('saved')
-    reset()
+    const updated = await updateUpload(id.value, payload)
+    emit('updated', updated)
   } catch (err) {
     console.error('Erro ao salvar upload:', err)
   }
@@ -136,23 +145,24 @@ async function save() {
       {{ id ? 'Edit Upload' : 'Create Upload' }}
     </h2>
 
-      <label class="block text-sm font-medium">Vídeos importados via API não podem ser editados</label>
+      <label class="block text-sm font-medium">Uploads imported via API can not be edited.</label>
 
     <div class="grid grid-cols-1 gap-3">
       <div>
         <label class="block text-sm font-medium">Música</label>
       </div>
       <MusicSelector
-        v-model="musicId"
+        v-model="music"
         :items="musicQueryResults"
         :loading="musicLoading"
         @search="onSearchMusic"
         @create="onCreateMusic"
+        @get-by-id="onGetMusicById"
       />
 
       <div>
         <label class="block text-sm font-medium">Title</label>
-        <input :readonly="isImported" v-model="title" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported()" v-model="title" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
@@ -160,7 +170,7 @@ async function save() {
 
         <textarea
           v-model="description"
-          :readonly="isImported"
+          :readonly="isImported()"
           rows="6"
           class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition resize-y"
           placeholder="Write a detailed description..."
@@ -169,27 +179,27 @@ async function save() {
 
       <div>
         <label class="block text-sm font-medium">Platform ID</label>
-        <input :readonly="isImported" v-model="platformId" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported()" v-model="platformId" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload URL</label>
-        <input :readonly="isImported" v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
+        <input :readonly="isImported()" v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload Tags</label>
-        <input :readonly="isImported" v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
+        <input :readonly="isImported()" v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Uploaded At</label>
-        <input :readonly="isImported" v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
+        <input :readonly="isImported()" v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
       </div>
     </div>
 
     <div class="flex gap-2 mt-2">
-      <button :readonly="isImported" @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button :readonly="isImported()" @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         {{ id ? 'Update' : 'Create' }}
       </button>
     </div>
