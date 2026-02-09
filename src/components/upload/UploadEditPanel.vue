@@ -7,13 +7,17 @@
               <div class="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
           <h2 class="font-semibold text-gray-700">Upload</h2>
 
-          <button
-            @click="close"
-            class="text-gray-500 hover:text-gray-800 text-xl leading-none"
-            aria-label="Close panel"
-          >
-            ✕
-          </button>
+                <button
+                  @click="close"
+                  class="rounded-md p-2 hover:bg-gray-100 transition"
+                  aria-label="Close panel"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5"
+                       fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
         </div>
         <div class="p-6">
         <slot />
@@ -25,11 +29,21 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
+
+
 const props = defineProps<{
   show: boolean
 }>()
 
 const emit = defineEmits(['close'])
+
+onMounted(() => window.addEventListener('keydown', handleEsc))
+onUnmounted(() => window.removeEventListener('keydown', handleEsc))
+
+function handleEsc(e: KeyboardEvent) {
+  if (e.key === 'Escape') close()
+}
 
 function close() {
   emit('close')

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from '@/router'
 import {
   clearTokens,
   getAccessToken,
@@ -32,7 +33,7 @@ http.interceptors.request.use(async (config) => {
         refreshToken: getRefreshToken(),
       })
 
-      saveTokens(res.data.accessToken, res.data.refreshtoken, res.data.expiresInSeconds)
+      saveTokens(res.data.accessToken, res.data.refreshToken, res.data.expiresInSeconds)
 
       pendingRequests.forEach((cb) => cb(res.data.accessToken))
       pendingRequests = []
@@ -58,4 +59,19 @@ http.interceptors.request.use(async (config) => {
   return config
 })
 
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const status = error?.response?.status
+
+    if (status === 401) {
+      clearTokens()
+      if (router.currentRoute.value.path !== '/login') {
+        router.push('/login')
+      }
+    }
+
+    return Promise.reject(error)
+  }
+)
 export default http
