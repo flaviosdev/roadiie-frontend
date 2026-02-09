@@ -16,7 +16,7 @@ const { updateUpload } = useUploadApi()
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Upload | null): void
   (e: 'saved'): void
-  (e: 'updated'): void
+  (e: 'updatedUpload'): void
   (e: 'cancelled'): void
 }>()
 
@@ -77,7 +77,6 @@ const onSearchMusic = async (q: string) => {
 }
 
 function isImported() {
-  console.log(status.value)
   return status.value === 'IMPORTED'
 }
 
@@ -131,7 +130,7 @@ async function save() {
     }
 
     const updated = await updateUpload(id.value, payload)
-    emit('updated', updated)
+    emit('updatedUpload', updated)
   } catch (err) {
     console.error('Erro ao salvar upload:', err)
   }

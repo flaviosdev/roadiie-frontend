@@ -5,6 +5,7 @@ import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
 import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
 import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
 import { useUploadSorting } from '@/composables/useUploadSorting.ts'
+import type { Upload } from '@/types/upload.ts'
 
 const { uploadList, loadUploadList } = useUploadApi()
 const { sortedUploads, sortKey, ascending, setSort } = useUploadSorting(uploadList)
@@ -28,25 +29,18 @@ function selectUpload(id: string) {
   isFormOpen.value = true
 }
 
-function sortByDate() {
-  setSort('date')
+function onUpdatedUpload(updatedUpload: Upload) {
+  const index = uploadList.value.findIndex(u => u.id === updatedUpload.id)
+  if (index === -1) return
+  uploadList.value[index] = { ...updatedUpload }
+  selectedId.value = updatedUpload.id
 }
 
-function sortByViews() {
-  setSort('views')
-}
-
-function sortByLikes() {
-  setSort('likes')
-}
-
-function sortByComments() {
-  setSort('comments')
-}
-
-function sortByAverageViews() {
-  setSort('avgViews')
-}
+const sortByDate = () => setSort('date')
+const sortByViews = () => setSort('views')
+const sortByLikes = () => setSort('likes')
+const sortByComments = () => setSort('comments')
+const sortByAverageViews = () => setSort('avgViews')
 
 </script>
 
