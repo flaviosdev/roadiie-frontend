@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import TopMenu from '@/components/TopMenu.vue'
-import { useMusicApi } from '@/composables/useMusicApi.ts'
+import { useSongApi } from '@/composables/useSongApi.ts'
 import { onMounted } from 'vue'
 
-const { loadMusicList } = useMusicApi()
+const { loadSongList } = useSongApi()
 
 onMounted(() => {
-  loadMusicList()
+  loadSongList()
 })
 
 </script>

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomePage from '@/pages/HomePage.vue'
-import MusicPage from '@/pages/MusicPage.vue'
+import SongPage from '@/pages/SongPage.vue'
 import UploadPage from '@/pages/UploadPage.vue'
 import LoginPage from '@/pages/LoginPage.vue'
 import { useAuth } from '@/auth/useAuth.ts'

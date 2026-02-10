@@ -1,42 +1,42 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import SidebarLayout from '@/layouts/SidebarLayout.vue'
-import MusicList from '@/components/MusicList.vue'
-import MusicDetail from '@/components/MusicDetail.vue'
-import MusicForm from '@/components/MusicForm.vue'
-import { useMusicApi } from '@/composables/useMusicApi.ts'
-import type { Music } from '@/types/music.ts'
+import SongList from '@/components/SongList.vue'
+import SongDetail from '@/components/SongDetail.vue'
+import SongForm from '@/components/SongForm.vue'
+import { useSongApi } from '@/composables/useSongApi.ts'
+import type { Song } from '@/types/song.ts'
 
-const { musicList, loadMusicList, createMusic, updateMusic, loading, error, deleteMusic } = useMusicApi()
+const { songList, loadSongList, createSong, updateSong, loading, error, deleteSong } = useSongApi()
 
 const selectedId = ref<string | null>(null)
 const isFormOpen = ref(false)
-const formMusic = ref<Music | null>(null)
+const formSong = ref<Song | null>(null)
 
 onMounted(() => {
-  loadMusicList()
+  loadSongList()
 })
 
-const selectedMusic = computed(() => musicList.value.find(music => music.id === selectedId.value) ?? null)
+const selectedSong = computed(() => songList.value.find(song => song.id === selectedId.value) ?? null)
 
-function selectMusic(id: string) {
+function selectSong(id: string) {
   selectedId.value = id
   isFormOpen.value = false
 }
 
-function onCreateMusic() {
-  formMusic.value = null
+function onCreateSong() {
+  formSong.value = null
   isFormOpen.value = true
 }
 
-function editMusic(music: Music) {
-  formMusic.value = { ...music }
+function editSong(song: Song) {
+  formSong.value = { ...song }
   isFormOpen.value = true
 }
 
-async function handleDelete(musicId: string) {
+async function handleDelete(songId: string) {
   try {
-    await deleteMusic(musicId)
+    await deleteSong(songId)
   } catch (err) {
     console.error(err)
   }
@@ -44,27 +44,27 @@ async function handleDelete(musicId: string) {
 
 async function onFormSaved() {
   try {
-    if (!formMusic.value) {
+    if (!formSong.value) {
       // nada a fazer (proteção)
       isFormOpen.value = false
       return
     }
 
-    const payload = formMusic.value as Music
+    const payload = formSong.value as Song
 
     if (payload.id) {
-      await updateMusic(payload.id, payload)
+      await updateSong(payload.id, payload)
     } else {
-      await createMusic(payload)
+      await createSong(payload)
     }
 
-    await loadMusicList()   // refresh
+    await loadSongList()   // refresh
   } catch (err) {
     console.error('Erro ao salvar música:', err)
     // opcional: mostrar toast/banner de erro
   } finally {
     isFormOpen.value = false
-    formMusic.value = null
+    formSong.value = null
   }
 }
 
@@ -76,11 +76,11 @@ function closeForm() {
 <template>
   <SidebarLayout>
     <template #sidebar>
-      <MusicList
-        :musicList="musicList"
+      <SongList
+        :songList="songList"
         :selectedId="selectedId"
-        @select="selectMusic"
-        @create="onCreateMusic"
+        @select="selectSong"
+        @create="onCreateSong"
       />
     </template>
 
@@ -89,17 +89,17 @@ function closeForm() {
       <div v-if="error" class="text-red-600">{{ error }}</div>
 
       <!-- Detail area -->
-      <MusicDetail
-        v-if="selectedMusic && !isFormOpen"
-        :music="selectedMusic"
-        @edit="editMusic"
+      <SongDetail
+        v-if="selectedSong && !isFormOpen"
+        :song="selectedSong"
+        @edit="editSong"
         @delete="handleDelete"
       />
 
       <!-- Form area (create OR edit) -->
-      <MusicForm
+      <SongForm
         v-if="isFormOpen"
-        v-model="formMusic"
+        v-model="formSong"
         @saved="onFormSaved"
         @cancelled="closeForm"
       />
@@ -107,7 +107,7 @@ function closeForm() {
 
 
       <!-- When neither detail nor form is open -->
-      <div v-if="!selectedMusic && !isFormOpen" class="text-gray-600">
+      <div v-if="!selectedSong && !isFormOpen" class="text-gray-600">
         Selecione uma música ou crie uma nova.
       </div>
     </div>

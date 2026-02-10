@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from 'vue'
 import type { Upload } from '@/types/upload.ts'
-import { useMusicApi } from '@/composables/useMusicApi.ts'
+import { useSongApi } from '@/composables/useSongApi.ts'
 import { useUploadApi } from '@/composables/useUploadApi.ts'
-import MusicSelector from '@/components/MusicSelector.vue'
-import type { Music } from '@/types/music.ts'
+import SongSelector from '@/components/SongSelector.vue'
+import type { Song } from '@/types/song.ts'
 
 const props = defineProps<{
   modelValue: Upload | null
 }>()
 
-const { searchMusic, createMusic, findMusicById } = useMusicApi()
+const { searchSong, createSong, findSongById } = useSongApi()
 const { updateUpload } = useUploadApi()
 
 const emit = defineEmits<{
@@ -21,7 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const id = ref<string | null>(null)
-const music = ref<Music | null>(null)
+const song = ref<Song | null>(null)
 const title = ref('')
 const description = ref('')
 const platform = ref('')
@@ -31,8 +31,8 @@ const status = ref('')
 const uploadTagsString = ref('')
 const uploadedAtString = ref('') // ISO string for input type="datetime-local"
 
-const musicQueryResults = ref<Music[]>([])
-const musicLoading = ref(false)
+const songQueryResults = ref<Song[]>([])
+const songLoading = ref(false)
 
 watch(
   () => props.modelValue,
@@ -40,9 +40,9 @@ watch(
     if (value) {
       id.value = value.id ?? null
 
-      if (value.musicId) {
-        const m = await findMusicById(value.musicId)
-        music.value = m
+      if (value.songId) {
+        const m = await findSongById(value.songId)
+        song.value = m
       }
       title.value = value.title ?? ''
       description.value = value.description ?? ''
@@ -68,29 +68,29 @@ function reset() {
   uploadedAtString.value = ''
 }
 
-const onSearchMusic = async (q: string) => {
-  if (q == '') musicQueryResults.value = []
-  musicLoading.value = true
-  const { data } = await searchMusic(q)
-  musicQueryResults.value = data || []
-  musicLoading.value = false
+const onSearchSong = async (q: string) => {
+  if (q == '') songQueryResults.value = []
+  songLoading.value = true
+  const { data } = await searchSong(q)
+  songQueryResults.value = data || []
+  songLoading.value = false
 }
 
 function isImported() {
   return status.value === 'IMPORTED'
 }
 
-const onCreateMusic = async (q: string) => {
-  const payload: Music = { title: q }
-  const resp = await createMusic(payload)
+const onCreateSong = async (q: string) => {
+  const payload: Song = { title: q }
+  const resp = await createSong(payload)
 
-  music.value = resp
-  musicQueryResults.value.push(resp)
+  song.value = resp
+  songQueryResults.value.push(resp)
 }
 
-const onGetMusicById = async (id: string) => {
-  const musicResponse = await findMusicById(id)
-  music.value = musicResponse
+const onGetSongById = async (id: string) => {
+  const songResponse = await findSongById(id)
+  song.value = songResponse
 }
 
 function toInputDateTime(d: string | Date) {
@@ -120,7 +120,7 @@ async function save() {
     const uploadedAt = fromInputDateTime(uploadedAtString.value)
     const payload: Upload = {
       id: id.value ?? undefined,
-      musicId: music.value.id,
+      songId: song.value.id,
       title: title.value,
       platform: platform.value,
       platformId: platformId.value,
@@ -150,13 +150,13 @@ async function save() {
       <div>
         <label class="block text-sm font-medium">Música</label>
       </div>
-      <MusicSelector
-        v-model="music"
-        :items="musicQueryResults"
-        :loading="musicLoading"
-        @search="onSearchMusic"
-        @create="onCreateMusic"
-        @get-by-id="onGetMusicById"
+      <SongSelector
+        v-model="song"
+        :items="songQueryResults"
+        :loading="songLoading"
+        @search="onSearchSong"
+        @create="onCreateSong"
+        @get-by-id="onGetSongById"
       />
 
       <div>

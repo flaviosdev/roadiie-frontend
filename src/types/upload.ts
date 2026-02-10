@@ -4,7 +4,7 @@ export interface Upload {
   id?: string
   clientId?: string
   videoId: string
-  musicId: string
+  songId: string
   title: string
   description: string
   platformId: string

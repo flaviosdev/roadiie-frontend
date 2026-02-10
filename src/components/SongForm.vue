@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from "vue"
-import type { Music } from "@/types/music"
+import type { Song } from "@/types/song"
 
 const props = defineProps<{
-  modelValue: Music | null
+  modelValue: Song | null
 }>()
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: Music | null): void
+  (e: "update:modelValue", value: Song | null): void
   (e: "saved"): void
 }>()
 
@@ -49,7 +49,7 @@ async function save() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0)
 
-    const payload: Music = {
+    const payload: Song = {
       id: id.value ?? undefined,
       title: title.value,
       artist: artist.value,
@@ -70,7 +70,7 @@ async function save() {
 <template>
   <div class="p-4 border rounded-lg bg-white shadow-sm space-y-4">
     <h2 class="text-xl font-semibold">
-      {{ id ? "Edit Music" : "Create Music" }}
+      {{ id ? "Edit Song" : "Create Song" }}
     </h2>
 
     <!-- Title -->

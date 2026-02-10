@@ -12,13 +12,13 @@
 
     <ul class="space-y-1">
       <li
-        v-for="music in musicList"
-        :key="music.id"
+        v-for="song in songList"
+        :key="song.id"
         class="p-2 rounded cursor-pointer hover:bg-gray-100"
-        :class="{'bg-gray-200': selectedId === music.id}"
-        @click="$emit('select', music.id)"
+        :class="{'bg-gray-200': selectedId === song.id}"
+        @click="$emit('select', song.id)"
       >
-        {{ music.title }}
+        {{ song.title }}
       </li>
     </ul>
   </div>
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 defineProps<{
-  musicList: any[],
+  songList: any[],
   selectedId: string | null
 }>()
 
