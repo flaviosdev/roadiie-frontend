@@ -1,20 +1,72 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Song } from '@/types/song'
+import { useUploadApi } from '@/composables/useUploadApi'
 
 const props = defineProps<{
   song: Song
 }>()
 
-// 🔥 MOCK – depois vem da performance real
-const totalUploads = 7
-const totalViews = 34200
-const averageViews = Math.round(totalViews / totalUploads)
+const { getUploadsBySong, uploadList } = useUploadApi()
 
+const uploads = ref([])
+
+
+onMounted(async () => {
+  if (!props.song.id) return
+  uploads.value = await getUploadsBySong(props.song.id)
+})
+
+/**
+ * MÉTRICAS REAIS
+ */
+const totalUploads = computed(() => uploads.value.length)
+
+const totalViews = computed(() =>
+  uploads.value.reduce((acc, u: any) => acc + (u.summary.totalViews ?? 0), 0)
+)
+
+const averageViews = computed(() => {
+  if (!totalUploads.value) return 0
+  return Math.round(totalViews.value / totalUploads.value)
+})
+
+/**
+ * RANKING NO REPERTÓRIO
+ * Baseado na soma de views por song
+ */
+const songRank = computed(() => {
+  if (!uploadList.value.length) return '-'
+
+  const map = new Map<string, number>()
+
+  uploadList.value.forEach((u: any) => {
+    const current = map.get(u.songId) ?? 0
+    map.set(u.songId, current + (u.views ?? 0))
+  })
+
+  const sorted = Array.from(map.entries())
+    .sort((a, b) => b[1] - a[1])
+
+  const index = sorted.findIndex(([songId]) => songId === props.song.id)
+
+  return index >= 0 ? `${index + 1}º` : '-'
+})
+
+/**
+ * BADGE DINÂMICO
+ */
 const performanceBadge = computed(() => {
-  if (totalViews > 30000) return { label: 'High Performer', color: 'bg-green-100 text-green-700' }
-  if (totalViews > 10000) return { label: 'Normal', color: 'bg-yellow-100 text-yellow-700' }
-  return { label: 'Low Performer', color: 'bg-red-100 text-red-700' }
+  if (totalViews.value > 30000)
+    return { label: 'High Performer', color: 'bg-green-100 text-green-700' }
+
+  if (totalViews.value > 10000)
+    return { label: 'Normal', color: 'bg-yellow-100 text-yellow-700' }
+
+  if (totalViews.value > 0)
+    return { label: 'Low Performer', color: 'bg-red-100 text-red-700' }
+
+  return { label: 'No Data', color: 'bg-gray-100 text-gray-600' }
 })
 </script>
 
@@ -45,7 +97,7 @@ const performanceBadge = computed(() => {
 
       <div class="bg-gray-50 p-4 rounded border">
         <div class="text-xs text-gray-500">Rank</div>
-        <div class="text-xl font-semibold">3rd in repertoire</div>
+        <div class="text-xl font-semibold">{{ songRank }}</div>
       </div>
 
     </div>
