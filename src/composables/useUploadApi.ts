@@ -4,6 +4,8 @@ import { http } from '@/api/http'
 
 export function useUploadApi() {
   const uploadList = ref<Upload[]>([])
+  const uploadsBySong = ref<Map<string, Upload[]>>(new Map())
+
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -19,6 +21,32 @@ export function useUploadApi() {
     } finally {
       loading.value = false
     }
+  }
+
+  const getUploadsBySong = async (songId: string, force = false) => {
+    if (!force && uploadsBySong.value.has(songId)) {
+      return uploadsBySong.value.get(songId)
+    }
+
+    loading.value = true
+    error.value = null
+    try {
+      const { data } = await http.get<Upload[]>(`/upload/bySong/${songId}`)
+
+      uploadsBySong.value.set(songId, data)
+
+      return data
+    } catch (err: any) {
+      error.value = err?.message ?? 'Failed to fetch uploads by song'
+      console.error('useUploadApi.getUploadsBySong error', err)
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const getCachedUploadsBySong = (songId: string) => {
+    return uploadsBySong.value.get(songId) ?? []
   }
 
   const findUploadById = async (id: string) => {
@@ -50,6 +78,7 @@ export function useUploadApi() {
     loading,
     error,
     loadUploadList,
+    getUploadsBySong,
     findUploadById,
     createUpload,
     updateUpload,

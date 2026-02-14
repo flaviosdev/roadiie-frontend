@@ -2,10 +2,9 @@
 import { computed, onMounted, ref } from 'vue'
 import { useUploadApi } from '@/composables/useUploadApi'
 import UploadCardGrid from '@/components/upload/UploadCardGrid.vue'
-import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
-import UploadEditPanel from '@/components/upload/UploadEditPanel.vue'
 import { useUploadSorting } from '@/composables/useUploadSorting.ts'
 import type { Upload } from '@/types/upload.ts'
+import UploadSidePanel from '@/components/upload/UploadSidePanel.vue'
 
 const { uploadList, loadUploadList } = useUploadApi()
 const { sortedUploads, sortKey, ascending, setSort } = useUploadSorting(uploadList)
@@ -34,6 +33,7 @@ function onUpdatedUpload(updatedUpload: Upload) {
   if (index === -1) return
   uploadList.value[index] = { ...updatedUpload }
   selectedId.value = updatedUpload.id
+  alert('Upload was updated')
 }
 
 const sortByDate = () => setSort('date')
@@ -78,8 +78,8 @@ const sortByAverageViews = () => setSort('avgViews')
     </div>
 
     <UploadCardGrid :uploadList="sortedUploads" @select="selectUpload" />
-    <UploadEditPanel :show="isFormOpen" @close="closeForm">
-      <UploadAnalysisPanel v-if="isFormOpen && selectedUpload" :upload="selectedUpload" @updated="onUpdatedUpload"/>
-    </UploadEditPanel>
+
+    <UploadSidePanel :show="isFormOpen" :upload="selectedUpload"
+                     @updateUpload="onUpdatedUpload" @close="closeForm" />
   </div>
 </template>

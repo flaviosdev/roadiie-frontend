@@ -26,8 +26,10 @@ export function useUploadSorting(uploadList: Ref<Upload[]>) {
           break
         case 'likes':
           result = a.summary.totalLikes - b.summary.totalLikes
+          break
         case 'comments':
           result = a.summary.totalComments - b.summary.totalComments
+          break
         case 'avgViews':
           result = a.summary.totalViewsPerDay - b.summary.totalViewsPerDay
           break

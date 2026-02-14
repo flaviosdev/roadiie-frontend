@@ -11,6 +11,7 @@ const router = createRouter({
     { path: '', name: 'home', component: HomePage, meta: { requireAuth: true } },
     { path: '/', name: 'home', component: HomePage, meta: { requireAuth: true } },
     { path: '/upload', name: 'upload', component: UploadPage, meta: { requireAuth: true } },
+    { path: '/song', name: 'song', component: SongPage, meta: { requireAuth: true } },
     { path: '/login', name: 'login', component: LoginPage },
   ],
 })
