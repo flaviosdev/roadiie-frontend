@@ -13,15 +13,40 @@
       {{ song.artist }}
     </div>
 
-    <!-- status -->
+    <!-- status todo: extrair para componente-->
     <div class="mt-2">
+
+      <!-- Badge normal -->
       <span
-        class="px-2 py-0.5 rounded-lg text-white text-xs font-medium"
-        :class="statusColor"
+        v-if="!isEditingStatus"
+        @click.stop="isEditingStatus = true"
+        :class="[
+      'inline-flex items-center px-2 py-1 text-xs font-medium rounded cursor-pointer transition',
+      statusClasses[song.status]
+    ]"
       >
-        {{ song.status }}
-      </span>
+    {{ song.status }}
+  </span>
+
+      <!-- Dropdown quando clicado -->
+      <select
+        v-else
+        v-model="localStatus"
+        @blur="saveStatus"
+        @change="saveStatus"
+        class="text-xs border rounded px-2 py-1"
+      >
+        <option
+          v-for="status in Object.keys(statusClasses)"
+          :key="status"
+          :value="status"
+        >
+          {{ status }}
+        </option>
+      </select>
+
     </div>
+
 
     <!-- infos rápidas -->
     <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 mt-3">
@@ -44,28 +69,45 @@
 
 <script setup lang="ts">
 import type { Song } from '@/types/Song'
-import { computed } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{ song: Song }>()
 
-const statusColor = computed(() => {
-  switch (props.song.status?.toLowerCase()) {
-    case 'estudando':
-    case 'learning':
-      return 'bg-yellow-500'
+const emit = defineEmits<{
+  (e: 'statusUpdated', value: Song): void
+  (e: 'selectSong', value: Song): void
+}>()
 
-    case 'pronto':
-    case 'ready':
-      return 'bg-green-600'
+watch(
+  () => props.song.status,
+  (val) => localStatus.value = val
+)
 
-    case 'gravado':
-    case 'recorded':
-      return 'bg-purple-600'
+const statusClasses: Record<string, string> = {
+  DRAFT: 'bg-gray-200 text-gray-700',
+  BACKLOG: 'bg-slate-200 text-slate-700',
+  IN_PROGRESS: 'bg-blue-200 text-blue-700',
+  REHEARSING: 'bg-indigo-200 text-indigo-700',
+  RECORDED: 'bg-orange-200 text-orange-700',
+  PRODUCED: 'bg-purple-200 text-purple-700',
+  READY: 'bg-teal-200 text-teal-700',
+  PUBLISHED: 'bg-green-200 text-green-700',
+}
 
-    default:
-      return 'bg-gray-500'
+const isEditingStatus = ref(false)
+const localStatus = ref(props.song.status)
+
+function saveStatus() {
+  isEditingStatus.value = false
+
+  if (localStatus.value !== props.song.status) {
+    emit('statusUpdated', {
+      ...props.song,
+      status: localStatus.value
+    })
   }
-})
+}
+
 </script>
 
 <style scoped>

@@ -5,22 +5,21 @@ import type { Song } from '@/types/song.ts'
 import SongCardGrid from '@/components/song/SongCardGrid.vue'
 import SongSidePanel from '@/components/song/SongSidePanel.vue'
 import SidePanel from '@/components/ui/SidePanel.vue'
+import { useUploadApi } from '@/composables/useUploadApi.ts'
 
 const { songList, loadSongList, createSong, updateSong, loading, error, deleteSong } = useSongApi()
+const { getUploadsBySong } = useUploadApi()
 
 const selectedId = ref<string | null>(null)
 const isPanelOpen = ref(false)
 const selectedSong = computed(() => songList.value.find((s) => s.id === selectedId.value))
-
 
 const formSong = ref(null)
 
 onMounted(() => {
   loadSongList()
 })
-function openPanel() {
-  isPanelOpen.value = true
-}
+
 function closePanel() {
   isPanelOpen.value = false
   selectedId.value = null
@@ -48,34 +47,33 @@ async function handleDelete(songId: string) {
   }
 }
 
-async function onFormSaved() {
+async function onStatusUpdated(updatedSong: Song) {
+  const index = songList.value.findIndex((s) => s.id === updatedSong.id)
+
+  await updateSong(updatedSong.id, updatedSong)
+
+  if (index === -1) return
+
+  songList.value[index] = { ...updatedSong }
+}
+
+async function onUpdateSong(updated: Song) {
   try {
-    if (!formSong.value) {
-      // nada a fazer (proteção)
-      isPanelOpen.value = false
-      return
-    }
+    if (!updated.id) return
 
-    const payload = formSong.value as Song
-
-    if (payload.id) {
-      await updateSong(payload.id, payload)
-    } else {
-      await createSong(payload)
-    }
-
-    await loadSongList() // refresh
+    await updateSong(updated.id, updated)
   } catch (err) {
-    console.error('Erro ao salvar música:', err)
-    // opcional: mostrar toast/banner de erro
-  } finally {
-    isPanelOpen.value = false
-    formSong.value = null
+    console.error('Error while updating song:', err)
   }
 }
 
-function closeForm() {
-  isPanelOpen.value = false
+async function onSongCreated(title: string) {
+  const newSong: Song = {
+    title,
+  }
+
+  await createSong(newSong)
+  alert('Pronto!')
 }
 </script>
 
@@ -105,17 +103,23 @@ function closeForm() {
       <input
         type="text"
         placeholder="Filter songs..."
-        class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm
-             focus:outline-none focus:ring-2 focus:ring-gray-800"
+        class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
       />
     </div>
 
     <SongCardGrid
       :songList="songList"
       @selectSong="selectSong"
+      @statusUpdated="onStatusUpdated"
+      @songCreated="onSongCreated"
     />
 
-    <SongSidePanel v-if="selectedSong"  :show="isPanelOpen" :song="selectedSong" @close="closePanel" />
-
+    <SongSidePanel
+      v-if="selectedSong"
+      :show="isPanelOpen"
+      :song="selectedSong"
+      @close="closePanel"
+      @updatedSong="onUpdateSong"
+    />
   </div>
 </template>

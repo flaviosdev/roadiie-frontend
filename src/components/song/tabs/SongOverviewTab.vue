@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import type { Song } from '@/types/song'
 import { useUploadApi } from '@/composables/useUploadApi'
 
@@ -7,23 +7,72 @@ const props = defineProps<{
   song: Song
 }>()
 
-const { getUploadsBySong, uploadList } = useUploadApi()
+const { getUploadsBySong, uploadList, loadUploadList } = useUploadApi()
 
 const uploads = ref([])
 
+const rankingData = computed(() => {
+  if (!uploadList.value.length) return []
+
+  const map = new Map<string, number>()
+
+  uploadList.value.forEach((item:any) => {
+    if (!item.songId) return
+
+    const current = map.get(item.id) ?? 0
+    map.set(item.songId, current + (item.views ?? 0))
+  })
+
+  return Array.from(map.entries())
+    .sort((a,b) => b[1] - a[1])
+})
+
+const songRankIndex = computed(() => {
+  return rankingData.value.findIndex(
+    ([songId]) => songId === props.song.id
+  )
+})
+
+const totalRankedSongs = computed(() => rankingData.value.length)
+
+const percentile = computed(() => {
+  if (songRankIndex.value < 0) return 0
+  if (!totalRankedSongs.value) return 0
+
+  return 1 - (songRankIndex.value / totalRankedSongs.value)
+})
+
+const performanceBadge = computed(() => {
+  if (!totalRankedSongs.value)
+    return { label: 'No data', color: 'bg-gray-100 text-gray-600' }
+  if (percentile.value >= 0.8)
+    return { label: '🚀 High Performer', color: 'br-green-100 text-green-700' }
+  if (percentile.value >= 0.4)
+    return { label: '⚖️ Average', color: 'bg-yellow-100 text-yellow-700' }
+
+  return { label: '📉 Underperforming', color: 'bg-red-100 text-red-700' }
+})
 
 onMounted(async () => {
+  await loadUploadList()
   if (!props.song.id) return
   uploads.value = await getUploadsBySong(props.song.id)
 })
 
-/**
- * MÉTRICAS REAIS
- */
+watchEffect(() => {
+  console.log(
+    rankingData.value.map(([id, views], index) => ({
+      position: index + 1,
+      id,
+      views
+    }))
+  )
+})
+
 const totalUploads = computed(() => uploads.value.length)
 
 const totalViews = computed(() =>
-  uploads.value.reduce((acc, u: any) => acc + (u.summary.totalViews ?? 0), 0)
+  uploads.value.reduce((acc, u: any) => acc + (u.summary?.totalViews ?? 0), 0)
 )
 
 const averageViews = computed(() => {
@@ -42,7 +91,7 @@ const songRank = computed(() => {
 
   uploadList.value.forEach((u: any) => {
     const current = map.get(u.songId) ?? 0
-    map.set(u.songId, current + (u.views ?? 0))
+    map.set(u.songId, current + (u.summary?.totalViews ?? 0))
   })
 
   const sorted = Array.from(map.entries())
@@ -53,27 +102,11 @@ const songRank = computed(() => {
   return index >= 0 ? `${index + 1}º` : '-'
 })
 
-/**
- * BADGE DINÂMICO
- */
-const performanceBadge = computed(() => {
-  if (totalViews.value > 30000)
-    return { label: 'High Performer', color: 'bg-green-100 text-green-700' }
-
-  if (totalViews.value > 10000)
-    return { label: 'Normal', color: 'bg-yellow-100 text-yellow-700' }
-
-  if (totalViews.value > 0)
-    return { label: 'Low Performer', color: 'bg-red-100 text-red-700' }
-
-  return { label: 'No Data', color: 'bg-gray-100 text-gray-600' }
-})
 </script>
 
 <template>
   <div class="space-y-6">
 
-    <!-- Performance Summary -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
       <div class="bg-gray-50 p-4 rounded border">
@@ -108,7 +141,7 @@ const performanceBadge = computed(() => {
       <div>
         <div class="text-sm text-gray-500">Strategic Position</div>
         <div class="text-lg font-semibold">
-          {{ performanceBadge.label }}
+          {{ songRankIndex >= 0 ? `${songRankIndex + 1}º` : '-' }}
         </div>
       </div>
 
