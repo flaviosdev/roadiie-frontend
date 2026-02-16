@@ -84,13 +84,13 @@ const onCreateSong = async (q: string) => {
   const payload: Song = { title: q }
   const resp = await createSong(payload)
 
-  song.value = resp
+  song.value = resp as Song | null
   songQueryResults.value.push(resp)
 }
 
 const onGetSongById = async (id: string) => {
   const songResponse = await findSongById(id)
-  song.value = songResponse
+  song.value = songResponse ?? null
 }
 
 function toInputDateTime(d: string | Date) {
