@@ -9,7 +9,7 @@ import {
 } from '@/auth/tokenStorage.ts'
 
 export const http = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'import.meta.env.VITE_API_BASE_URL',
   timeout: 500000,
   headers: {
     Accept: 'application/json',
