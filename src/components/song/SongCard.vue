@@ -19,14 +19,14 @@
       <!-- Badge normal -->
       <span
         v-if="!isEditingStatus"
-        @click.stop="isEditingStatus = true"
+        @click.stop="setEditMode"
         :class="[
-      'inline-flex items-center px-2 py-1 text-xs font-medium rounded cursor-pointer transition',
-      statusClasses[song.status]
-    ]"
+          'inline-flex items-center px-2 py-1 text-xs font-medium rounded cursor-pointer transition',
+          statusClasses[song.status]
+        ]"
       >
-    {{ song.status }}
-  </span>
+        {{ song.status }}
+      </span>
 
       <!-- Dropdown quando clicado -->
       <select
@@ -36,17 +36,11 @@
         @change="saveStatus"
         class="text-xs border rounded px-2 py-1"
       >
-        <option
-          v-for="status in Object.keys(statusClasses)"
-          :key="status"
-          :value="status"
-        >
+        <option v-for="status in Object.keys(statusClasses)" :key="status" :value="status">
           {{ status }}
         </option>
       </select>
-
     </div>
-
 
     <!-- infos rápidas -->
     <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 mt-3">
@@ -58,10 +52,7 @@
     </div>
 
     <!-- preview de letra (opcional visual) -->
-    <div
-      v-if="song.lyrics"
-      class="text-xs text-gray-400 mt-3 line-clamp-2 italic"
-    >
+    <div v-if="song.lyrics" class="text-xs text-gray-400 mt-3 line-clamp-2 italic">
       {{ song.lyrics }}
     </div>
   </div>
@@ -75,12 +66,14 @@ const props = defineProps<{ song: Song }>()
 
 const emit = defineEmits<{
   (e: 'statusUpdated', value: Song): void
-  (e: 'selectSong', value: Song): void
+  (e: 'selectSong', value: string): void
+  (e: 'editingStarted', value: string): void
+  (e: 'editingFinished', value: string): void
 }>()
 
 watch(
   () => props.song.status,
-  (val) => localStatus.value = val
+  (val) => (localStatus.value = val)
 )
 
 const statusClasses: Record<string, string> = {
@@ -97,6 +90,11 @@ const statusClasses: Record<string, string> = {
 const isEditingStatus = ref(false)
 const localStatus = ref(props.song.status)
 
+function setEditMode() {
+  isEditingStatus.value = true
+  emit('editingStarted', song.value.id)
+}
+
 function saveStatus() {
   isEditingStatus.value = false
 
@@ -106,6 +104,7 @@ function saveStatus() {
       status: localStatus.value
     })
   }
+  emit('editingFinished', song.value.id)
 }
 
 </script>
