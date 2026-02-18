@@ -17,11 +17,12 @@ const isEditingTags = ref(false)
 const localTags = ref<string[]>([...(props.song.tags ?? [])])
 
 const availableTags = [
-  'ESCREVER_PARTITURA',
-  'ENSAIAR',
   'APRENDER',
-  'PREPARAR_ARRANJO',
   'COLOCAR_NA_PLAYLIST',
+  'ENSAIAR',
+  'ESCREVER_PARTITURA',
+  'GRAVAR_VIDEO_CURTO',
+  'PREPARAR_ARRANJO',
 ]
 
 watch(
