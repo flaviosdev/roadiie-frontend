@@ -65,6 +65,14 @@ export function useSongApi() {
     return data
   }
 
+  const patchSong = async (id: string, song: Song) => {
+    const { data } = await http.patch<Song>(`/song/${id}`, song)
+    const index = songList.value.findIndex((m) => m.id === id)
+    if (index !== -1) songList.value[index] = data
+
+    return data
+  }
+
   const deleteSong = async (id: string) => {
     await http.delete<Song>(`/song/${id}`)
     songList.value = songList.value.filter(m => m.id !== id)
@@ -82,6 +90,7 @@ export function useSongApi() {
     findSongById,
     createSong,
     updateSong,
+    patchSong,
     deleteSong,
     reloadSong,
     searchSong,

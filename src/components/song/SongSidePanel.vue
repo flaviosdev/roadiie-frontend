@@ -25,11 +25,6 @@ watch(
   { immediate: true },
 )
 
-function save() {
-  if (!localSong.value) return
-  emit('updatedSong', localSong.value)
-}
-
 function close() {
   emit('close')
 }

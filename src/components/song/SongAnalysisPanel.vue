@@ -73,7 +73,7 @@ const activeTab = ref<TabKey>('edit')
       <SongRepertoireTab v-if="activeTab === 'repertoire'" :song="localSong" />
 
       <SongEditTab
-        v-if="activeTab === 'edit'"
+        v-if="activeTab === 'edit' && localSong"
         :song="localSong"
         @updatedSong="emit('updatedSong', $event)"
       />

@@ -12,10 +12,8 @@ export interface Song {
   id?: string
   title: string
   artist: string
+  album: string
   releaseYear: number
-  lyrics?: string
-  genre?: string
-  history?: string
   status: SongStatus
   tags: string[]
 }

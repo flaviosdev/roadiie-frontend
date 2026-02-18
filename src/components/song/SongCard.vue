@@ -59,12 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Song } from '@/types/Song'
+import type { Song } from '@/types/song.ts'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{
-  song: Song,
-  canBeClicked: boolean,
+  song: Song
 }>()
 
 const emit = defineEmits<{
@@ -93,17 +92,12 @@ const statusClasses: Record<string, string> = {
 const isEditingStatus = ref(false)
 const localStatus = ref(props.song.status)
 
-function setEditMode() {
-  isEditingStatus.value = true
-  emit('editingStarted', props.song.id)
-}
-
 function saveStatus() {
   isEditingStatus.value = false
 
   if (localStatus.value !== props.song.status) {
-    emit('statusUpdated', {
-      ...props.song,
+    emit('statusUpdated', <Song>{
+      id: props.song.id,
       status: localStatus.value
     })
   }

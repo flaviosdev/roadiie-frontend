@@ -7,7 +7,7 @@ import SongSidePanel from '@/components/song/SongSidePanel.vue'
 import SidePanel from '@/components/ui/SidePanel.vue'
 import { useUploadApi } from '@/composables/useUploadApi.ts'
 
-const { songList, loadSongList, createSong, updateSong, loading, error, deleteSong } = useSongApi()
+const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } = useSongApi()
 const { getUploadsBySong } = useUploadApi()
 
 const selectedId = ref<string | null>(null)
@@ -63,6 +63,18 @@ async function onUpdatedSong(updatedSong: Song) {
   }
 }
 
+async function onPatchedSong(patchedSong: Song) {
+  if (!patchedSong.id) return
+  const index = songList.value.findIndex((s) => s.id === patchedSong.id)
+
+  const returnedSong = await patchSong(patchedSong.id, patchedSong)
+
+  if (index === -1) return
+
+  songList.value[index] = returnedSong
+  alert('Song patched!')
+}
+
 async function onSongCreated(title: string) {
   const newSong: Song = {
     title,
@@ -100,7 +112,7 @@ async function onSongCreated(title: string) {
     <SongCardGrid
       :songList="songList"
       @selectSong="selectSong"
-      @statusUpdated="onUpdatedSong"
+      @statusUpdated="onPatchedSong"
       @songCreated="onSongCreated"
     />
 
@@ -109,7 +121,7 @@ async function onSongCreated(title: string) {
       :show="isPanelOpen"
       :song="selectedSong"
       @close="closePanel"
-      @updatedSong="onUpdatedSong"
+      @updatedSong="onPatchedSong"
     />
   </div>
 </template>

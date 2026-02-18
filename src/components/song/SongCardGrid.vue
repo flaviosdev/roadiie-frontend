@@ -31,7 +31,6 @@
       v-for="song in songList"
       :key="song.id"
       :song="song"
-      :canBeClicked="canBeClicked"
       @statusUpdated="onStatusUpdated"
       @editingStarted="editingSongId = $event"
       @editingFinished="handleEditingFinished"
@@ -66,9 +65,6 @@ function submit() {
   isCreating.value = false
 }
 
-function canBeClicked(): boolean {
-  return !isCreating.value || editingSongId.value === null
-}
 function onStatusUpdated(song: Song) {
   emit('statusUpdated', song)
 }
