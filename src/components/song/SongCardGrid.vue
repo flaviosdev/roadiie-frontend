@@ -31,8 +31,11 @@
       v-for="song in songList"
       :key="song.id"
       :song="song"
-      @statusUpdated="$emit('statusUpdated', $event)"
-      @selectSong="$emit('selectSong', $event)"
+      :canBeClicked="canBeClicked"
+      @statusUpdated="onStatusUpdated"
+      @editingStarted="editingSongId = $event"
+      @editingFinished="handleEditingFinished"
+      @selectSong="onSelectSong"
     />
   </div>
 </template>
@@ -45,11 +48,12 @@ import type { Song } from '@/types/song.ts'
 defineProps<{ songList: Song[] }>()
 
 const isCreating = ref(false)
+const editingSongId = ref<string | null>(null)
 const newTitle = ref('')
 
 const emit = defineEmits<{
   (e: 'statusUpdated', value: Song): void
-  (e: 'selectSong'): void
+  (e: 'selectSong', value: string): void
   (e: 'songCreated', title: string): void
 }>()
 
@@ -60,6 +64,23 @@ function submit() {
 
   newTitle.value = ''
   isCreating.value = false
+}
+
+function canBeClicked(): boolean {
+  return !isCreating.value || editingSongId.value === null
+}
+function onStatusUpdated(song: Song) {
+  emit('statusUpdated', song)
+}
+
+function handleEditingFinished(song: Song): void {
+  editingSongId.value = null
+}
+function onSelectSong(songId: string): void {
+  if (isCreating.value || editingSongId.value !== null) return
+
+  editingSongId.value = null
+  emit('selectSong', songId)
 }
 
 function cancelIfempty() {

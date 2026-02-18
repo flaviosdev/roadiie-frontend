@@ -87,16 +87,10 @@ async function onSongCreated(title: string) {
           Date
         </button>
         <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Views
+          Relevance
         </button>
         <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Likes
-        </button>
-        <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Comments
-        </button>
-        <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Avg / Day
+          Flow
         </button>
       </div>
 
