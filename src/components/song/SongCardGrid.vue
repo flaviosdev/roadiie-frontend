@@ -40,15 +40,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import SongCard from './SongCard.vue'
 import type { Song } from '@/types/song.ts'
 
-defineProps<{ songList: Song[] }>()
+const props = defineProps<{ songList: Song[] }>()
 
 const isCreating = ref(false)
 const editingSongId = ref<string | null>(null)
 const newTitle = ref('')
+const selectedTag = ref<string | null>(null)
 
 const emit = defineEmits<{
   (e: 'statusUpdated', value: Song): void
@@ -64,6 +65,25 @@ function submit() {
   newTitle.value = ''
   isCreating.value = false
 }
+
+const sortedSongs = computed(() => {
+  if (!selectedTag.value) return songList
+
+  return [...songList].sort((a, b) => {
+    const aHas = a.tags?.includes(selectedTag.value)
+    const bHas = b.tags?.includes(selectedTag.value)
+
+    return Number(bHas) - Number(aHas)
+  })
+})
+
+const filteredSongs = computed(() => {
+  if (!selectedTag.value) return props.songList
+
+  return props.songList.filter(song => {
+    song.tags?.includes(selectedTag.value!)
+  })
+})
 
 function onStatusUpdated(song: Song) {
   emit('statusUpdated', song)
