@@ -64,7 +64,7 @@ http.interceptors.response.use(
   async (error) => {
     const status = error?.response?.status
 
-    if (status === 401) {
+    if (status === 401 || status === 403) {
       clearTokens()
       if (router.currentRoute.value.path !== '/login') {
         router.push('/login')
