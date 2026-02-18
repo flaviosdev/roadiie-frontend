@@ -47,21 +47,17 @@ async function handleDelete(songId: string) {
   }
 }
 
-async function onStatusUpdated(updatedSong: Song) {
-  const index = songList.value.findIndex((s) => s.id === updatedSong.id)
-
-  await updateSong(updatedSong.id, updatedSong)
-
-  if (index === -1) return
-
-  songList.value[index] = { ...updatedSong }
-}
-
-async function onUpdateSong(updated: Song) {
+async function onUpdatedSong(updatedSong: Song) {
   try {
-    if (!updated.id) return
+    if (!updatedSong.id) return
+    const index = songList.value.findIndex((s) => s.id === updatedSong.id)
 
-    await updateSong(updated.id, updated)
+    await updateSong(updatedSong.id, updatedSong)
+
+    if (index === -1) return
+
+    songList.value[index] = { ...updatedSong }
+    alert('Song updated!')
   } catch (err) {
     console.error('Error while updating song:', err)
   }
@@ -104,7 +100,7 @@ async function onSongCreated(title: string) {
     <SongCardGrid
       :songList="songList"
       @selectSong="selectSong"
-      @statusUpdated="onStatusUpdated"
+      @statusUpdated="onUpdatedSong"
       @songCreated="onSongCreated"
     />
 
@@ -113,7 +109,7 @@ async function onSongCreated(title: string) {
       :show="isPanelOpen"
       :song="selectedSong"
       @close="closePanel"
-      @updatedSong="onUpdateSong"
+      @updatedSong="onUpdatedSong"
     />
   </div>
 </template>
