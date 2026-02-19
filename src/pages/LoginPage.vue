@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/auth/useAuth.ts'
 
@@ -12,12 +12,6 @@ const route = useRoute()
 const router = useRouter()
 
 const { login } = useAuth()
-
-onMounted(() => {
-  if ((route.query.error = 'server-down')) {
-    error.value = 'server-down'
-  }
-})
 
 async function submit() {
   loading.value = true
