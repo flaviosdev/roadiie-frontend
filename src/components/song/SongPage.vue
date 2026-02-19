@@ -20,7 +20,7 @@ const selectedSong = computed(() => songList.value.find((s) => s.id === selected
 
 const comparators = {
 
-  title: (a: Song, b: Song) => a.title.localeCompare(b.title),
+  title: (a: Song, b: Song) => a.title.localeCompare(b.title, 'pt', { sensitivity: 'base'}),
 
   releaseYear: (a: Song, b: Song) => a.releaseYear - b.releaseYear,
 
@@ -53,32 +53,11 @@ function onCreateSong() {
   isPanelOpen.value = true
 }
 
-function editSong(song: Song) {
-  songList.value.push(song)
-  isPanelOpen.value = true
-}
-
 async function handleDelete(songId: string) {
   try {
     await deleteSong(songId)
   } catch (err) {
     console.error(err)
-  }
-}
-
-async function onUpdatedSong(updatedSong: Song) {
-  try {
-    if (!updatedSong.id) return
-    const index = songList.value.findIndex((s) => s.id === updatedSong.id)
-
-    await updateSong(updatedSong.id, updatedSong)
-
-    if (index === -1) return
-
-    songList.value[index] = { ...updatedSong }
-    alert('Song updated!')
-  } catch (err) {
-    console.error('Error while updating song:', err)
   }
 }
 
