@@ -4,15 +4,34 @@ import { useSongApi } from '@/composables/useSongApi.ts'
 import type { Song } from '@/types/song.ts'
 import SongCardGrid from '@/components/song/SongCardGrid.vue'
 import SongSidePanel from '@/components/song/SongSidePanel.vue'
-import SidePanel from '@/components/ui/SidePanel.vue'
-import { useUploadApi } from '@/composables/useUploadApi.ts'
+import { useListFilter } from '@/composables/useListFilter.ts'
+import { useListSorting } from '@/composables/useListSorting.ts'
 
-const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } = useSongApi()
-const { getUploadsBySong } = useUploadApi()
+const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } =
+  useSongApi()
+
+const { query, filteredList } = useListFilter(songList, (search, q) =>
+  search.title.toLowerCase().includes(q.toLowerCase())
+)
 
 const selectedId = ref<string | null>(null)
 const isPanelOpen = ref(false)
 const selectedSong = computed(() => songList.value.find((s) => s.id === selectedId.value))
+
+const comparators = {
+
+  title: (a: Song, b: Song) => a.title.localeCompare(b.title),
+
+  releaseYear: (a: Song, b: Song) => a.releaseYear - b.releaseYear,
+
+  status: (a: Song, b: Song) => a.status.localeCompare(b.status),
+}
+
+const {
+  sortedList: sortedSongs,
+  sortKey,
+  setSort
+} = useListSorting(filteredList, comparators)
 
 const formSong = ref(null)
 
@@ -91,26 +110,27 @@ async function onSongCreated(title: string) {
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
       <div class="flex flex-wrap gap-2">
-        <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Date
+        <button @click="setSort('title')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+          Title
         </button>
-        <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Relevance
+        <button @click="setSort('releaseYear')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+          Release Year
         </button>
-        <button class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
-          Flow
+        <button @click="setSort('status')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+          Status
         </button>
       </div>
 
       <input
         type="text"
+        v-model="query"
         placeholder="Filter songs..."
         class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
       />
     </div>
 
     <SongCardGrid
-      :songList="songList"
+      :songList="sortedSongs"
       @selectSong="selectSong"
       @statusUpdated="onPatchedSong"
       @songCreated="onSongCreated"
