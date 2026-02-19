@@ -2,6 +2,7 @@
 import TopMenu from '@/components/TopMenu.vue'
 import { useSongApi } from '@/composables/useSongApi.ts'
 import { onMounted } from 'vue'
+import { globalError } from '@/api/globalError.ts'
 
 const { loadSongList } = useSongApi()
 
@@ -12,10 +13,17 @@ onMounted(() => {
 </script>
 
 <template>
+  <div v-if="globalError" class="global-error">
+    {{ globalError }}
+  </div>
   <div>
     <TopMenu />
     <router-view />
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+  .global-error {
+    color: #de4e4e
+  }
+</style>

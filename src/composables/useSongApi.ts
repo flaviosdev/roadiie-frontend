@@ -25,8 +25,8 @@ export function useSongApi() {
       loadedOnce.value = true
       lastLoad.value = Date.now()
     } catch (err: any) {
-      error.value = err?.message ?? 'Failed to fetch song'
-      console.error('useSongApí.load error', err)
+      console.error('useSongApí.load error: ', err)
+      throw err
     } finally {
       loading.value = false
     }
@@ -52,8 +52,8 @@ export function useSongApi() {
       songList.value.push(data)
       return data
     }catch(err) {
-      console.error('Erro ao criar song', err)
-      return err
+      console.error('useSongApi.createSong error: ', err)
+      throw err
     }
   }
 

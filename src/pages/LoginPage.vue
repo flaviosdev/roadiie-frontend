@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/auth/useAuth.ts'
 
@@ -13,6 +13,12 @@ const router = useRouter()
 
 const { login } = useAuth()
 
+onMounted(() => {
+  if ((route.query.error = 'server-down')) {
+    error.value = 'server-down'
+  }
+})
+
 async function submit() {
   loading.value = true
   error.value = ''
@@ -25,7 +31,7 @@ async function submit() {
       return
     }
 
-    const redirect = route.query.redirect as string || '/'
+    const redirect = (route.query.redirect as string) || '/'
     router.push(redirect)
   } catch {
     error.value = 'Login failed'
@@ -37,13 +43,11 @@ async function submit() {
 
 <template>
   <div class="p-6 max-w-sm mx-auto border rounded space-y-4">
-    <h1 class="text-xl font-semibold">
-      Login
-    </h1>
+    <h1 class="text-xl font-semibold">Login</h1>
 
     <div>
       <label>Email</label>
-      <input v-model="email" type="email" class="border w-full p-2 rounded"/>
+      <input v-model="email" type="email" class="border w-full p-2 rounded" />
     </div>
 
     <div>

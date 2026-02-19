@@ -7,6 +7,7 @@ import {
   getRefreshToken,
   saveTokens,
 } from '@/auth/tokenStorage.ts'
+import { setGlobalError } from '@/api/globalError.ts'
 
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -29,7 +30,7 @@ http.interceptors.request.use(async (config) => {
   if (token && willExpireSoon && !isRefreshing) {
     isRefreshing = true
     try {
-      const res = await axios.post('http://localhost:8080/auth/refresh', {
+      const res = await axios.post(`${http.defaults.baseURL}/auth/refresh`, {
         refreshToken: getRefreshToken(),
       })
 
@@ -62,6 +63,16 @@ http.interceptors.request.use(async (config) => {
 http.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if (!error.response) {
+      setGlobalError('Server down!')
+      console.error(error.message)
+
+      return Promise.reject({
+        type: 'NETWORK',
+        message: 'Network error (Server Down??)',
+      })
+    }
+
     const status = error?.response?.status
 
     if (status === 401 || status === 403) {
@@ -69,9 +80,17 @@ http.interceptors.response.use(
       if (router.currentRoute.value.path !== '/login') {
         router.push('/login')
       }
+
+      return Promise.reject({
+        type: 'AUTH',
+        message: error.message,
+      })
     }
 
-    return Promise.reject(error)
-  }
+    return Promise.reject({
+      type: 'UNKNOWN',
+      message: error.message,
+    })
+  },
 )
 export default http
