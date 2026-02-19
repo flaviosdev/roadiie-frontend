@@ -29,7 +29,6 @@ export function useSongApi() {
       throw err
     } finally {
       loading.value = false
-    }
   }
 
   const findSongById = async (id: string): Promise<Song | undefined> => {
@@ -46,14 +45,10 @@ export function useSongApi() {
   }
 
   const createSong = async (song: Song) => {
-    try {
       const { data } = await http.post<Song>('/song', song)
 
       songList.value.push(data)
       return data
-    }catch(err) {
-      console.error('useSongApi.createSong error: ', err)
-      throw err
     }
   }
 
