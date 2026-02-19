@@ -25,10 +25,11 @@ export function useSongApi() {
       loadedOnce.value = true
       lastLoad.value = Date.now()
     } catch (err: any) {
-      console.error('useSongApí.load error: ', err)
+      console.error('useSongApi.load error: ', err)
       throw err
     } finally {
       loading.value = false
+    }
   }
 
   const findSongById = async (id: string): Promise<Song | undefined> => {
@@ -40,16 +41,15 @@ export function useSongApi() {
   }
 
   const searchSong = async (q: string) => {
-    if (!q || q.length < 2) return { data: []}
+    if (!q || q.length < 2) return { data: [] }
     return http.get(`/song/search?q=${encodeURIComponent(q)}`)
   }
 
   const createSong = async (song: Song) => {
-      const { data } = await http.post<Song>('/song', song)
+    const { data } = await http.post<Song>('/song', song)
 
-      songList.value.push(data)
-      return data
-    }
+    songList.value.push(data)
+    return data
   }
 
   const updateSong = async (id: string, song: Song) => {
@@ -70,7 +70,7 @@ export function useSongApi() {
 
   const deleteSong = async (id: string) => {
     await http.delete<Song>(`/song/${id}`)
-    songList.value = songList.value.filter(m => m.id !== id)
+    songList.value = songList.value.filter((m) => m.id !== id)
   }
 
   const reloadSong = async () => loadSongList(true)
