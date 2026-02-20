@@ -13,7 +13,7 @@ export function useMetricApi(uploadId: string, metricId: string) {
 
     try {
       const { data } = await http.get(
-        `/upload/${uploadId}/metrics/${metricId}`
+        `/upload/${uploadId}/metrics/${metricId}?page=0&size=14`
       )
       metrics.value = data
     } catch (error: any) {

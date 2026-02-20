@@ -12,10 +12,8 @@ export function useUploadMetricsApi(uploadId: string) {
     error.value = null
 
     try {
-      const { data } = await http.get(
-        `/upload/${uploadId}/metrics/snapshots`
-      )
-      snapshots.value = data
+      const { data } = await http.get(`/upload/${uploadId}/metrics/snapshots?page=0&size=14&sort=date,desc`)
+      snapshots.value = data.reverse()
     } catch (err: any) {
       error.value =
         err?.message ?? 'Failed to fetch snapshot metrics'

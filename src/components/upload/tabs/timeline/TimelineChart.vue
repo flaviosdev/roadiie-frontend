@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import {
   Chart,
@@ -9,7 +8,7 @@ import {
   LinearScale,
   CategoryScale,
   Tooltip,
-  Legend
+  Legend,
 } from 'chart.js'
 
 Chart.register(
@@ -19,7 +18,7 @@ Chart.register(
   LinearScale,
   CategoryScale,
   Tooltip,
-  Legend
+  Legend,
 )
 
 type Dataset = {
@@ -46,14 +45,21 @@ function renderChart() {
     type: 'line',
     data: {
       labels: props.labels,
-      datasets: props.datasets
+      datasets: props.datasets,
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      scales: { y: { beginAtZero: true } }
-    }
+      scales: {
+        y: {
+          ticks: {
+            stepSize: 1,
+          },
+          beginAtZero: true,
+        },
+      },
+    },
   })
 }
 
