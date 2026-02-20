@@ -1,4 +1,4 @@
-export interface Score {
+export interface Metric {
   id: string
   parentId: string
   date: number
