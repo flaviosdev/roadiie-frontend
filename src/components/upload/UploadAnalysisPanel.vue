@@ -30,7 +30,6 @@ const activeTab = ref<TabKey>('overview')
       <button
         v-for="tab in [
           { key: 'overview', label: 'Overview' },
-          { key: 'timeline', label: 'Timeline' },
           { key: 'details', label: 'Details' },
           { key: 'tools', label: 'Tools' },
         ]"
@@ -50,8 +49,6 @@ const activeTab = ref<TabKey>('overview')
     <div class="flex-1 overflow-y-auto">
 
       <UploadOverviewTab v-if="activeTab === 'overview'" :upload="upload" />
-
-      <UploadTimelineTab v-if="activeTab === 'timeline'" :upload="upload" />
 
       <UploadDetailsTab
         v-if="activeTab === 'details'"

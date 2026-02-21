@@ -21,13 +21,9 @@ const selectedUpload = computed(() => sortedUploads.value.find((u) => u.id === s
 const comparators = {
   date: (a: Upload, b: Upload) =>
     new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime(),
-
   views: (a: Upload, b: Upload) => a.summary.totalViews - b.summary.totalViews,
-
   likes: (a: Upload, b: Upload) => a.summary.totalLikes - b.summary.totalLikes,
-
   comments: (a: Upload, b: Upload) => a.summary.totalComments - b.summary.totalComments,
-
   avgViews: (a: Upload, b: Upload) => a.summary.totalViewsPerDay - b.summary.totalViewsPerDay,
 }
 
@@ -113,7 +109,7 @@ const sortByAverageViews = () => setSort('avgViews')
       />
     </div>
 
-    <UploadCardGrid :uploadList="filteredList" @select="selectUpload" />
+    <UploadCardGrid :uploadList="sortedUploads" @select="selectUpload" />
 
     <UploadSidePanel
       :show="isFormOpen"
