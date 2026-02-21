@@ -15,7 +15,7 @@ export function useMetricApi(uploadId: string, metricId: string) {
       const { data } = await http.get(
         `/upload/${uploadId}/metrics/${metricId}?page=0&size=14`
       )
-      metrics.value = data
+      metrics.value = data.content
     } catch (error: any) {
       error.value = error?.message ?? 'Failed to load metrics'
       console.error('useMetricApi.metrics error', error)
