@@ -113,6 +113,7 @@ const sortByAverageViews = () => setSort('avgViews')
 
     <UploadSidePanel
       :show="isFormOpen"
+      v-if="selectedUpload"
       :upload="selectedUpload"
       @updateUpload="onUpdatedUpload"
       @close="closeForm"

@@ -14,14 +14,14 @@ const props = defineProps<{
     <div class="text-sm text-gray-500">Overview</div>
 
     <!-- Thumbnail + KPIs -->
-    <div class="flex gap-4">
+    <div class="flex flex-col md:flex-row gap-4">
       <img
         v-if="upload.videoId"
         :src="`https://i.ytimg.com/vi/${upload.videoId}/mqdefault.jpg`"
-        class="w-40 h-24 rounded-lg object-cover"
+        class="w-full md:w-40 h-auto md:h-24"
       />
 
-      <div class="grid grid-cols-2 gap-3 flex-1">
+      <div class="grid grid-cols-1 md:grid:cols-2 gap-3 flex-1">
         <div class="bg-gray-50 p-3 rounded">
           <div class="text-xs text-gray-500">Views</div>
           <div class="text-lg font-semibold">

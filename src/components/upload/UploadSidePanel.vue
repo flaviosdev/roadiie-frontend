@@ -19,6 +19,6 @@ const emit = defineEmits<{
 
 <template>
   <SidePanel :show="show" @close="emit('close')">
-    <UploadAnalysisPanel :upload="upload" @updated="emit('updateUpload', $event)"/>
+    <UploadAnalysisPanel v-if="upload" :upload="upload" @updated="emit('updateUpload', $event)"/>
   </SidePanel>
 </template>
