@@ -4,6 +4,7 @@ import SongPage from '@/components/song/SongPage.vue'
 import UploadPage from '@/pages/UploadPage.vue'
 import LoginPage from '@/pages/LoginPage.vue'
 import { useAuth } from '@/auth/useAuth.ts'
+import ScorePage from '@/components/score/ScorePage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomePage, meta: { requireAuth: true } },
     { path: '/upload', name: 'upload', component: UploadPage, meta: { requireAuth: true } },
     { path: '/song', name: 'song', component: SongPage, meta: { requireAuth: true } },
+    { path: '/score', name: 'score', component: ScorePage, meta: { requireAuth: true } },
     { path: '/login', name: 'login', component: LoginPage },
   ],
 })
