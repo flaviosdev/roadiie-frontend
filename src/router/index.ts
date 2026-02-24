@@ -9,7 +9,7 @@ import ScorePage from '@/components/score/ScorePage.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '', name: 'home', component: HomePage, meta: { requireAuth: true } },
+    { path: '', name: 'home', component: ScorePage, meta: { requireAuth: true } },
     { path: '/', name: 'home', component: HomePage, meta: { requireAuth: true } },
     { path: '/upload', name: 'upload', component: UploadPage, meta: { requireAuth: true } },
     { path: '/song', name: 'song', component: SongPage, meta: { requireAuth: true } },
