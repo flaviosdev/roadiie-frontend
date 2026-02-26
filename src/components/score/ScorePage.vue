@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useSongApi } from '@/composables/useSongApi'
-import { useSongScoreApi } from '@/composables/useSongScoreApi'
 import { useListFilter } from '@/composables/useListFilter'
 import { useListSorting } from '@/composables/useListSorting'
+import type { Song } from '@/types/song.ts'
 
 interface SongWithScore {
   id: string
@@ -17,59 +17,29 @@ interface SongWithScore {
 
 const { songList, loadSongList } = useSongApi()
 
-const scoreList = ref<SongWithScore[]>([])
 const loading = ref(false)
 
 onMounted(async () => {
   await loadSongList()
-  await loadScores()
 })
 
-async function loadScores() {
-  loading.value = true
-  scoreList.value = []
-
-  for (const song of songList.value) {
-    try {
-      const { score, loadScore } = useSongScoreApi(song.id)
-      await loadScore()
-
-      if (score.value) {
-        scoreList.value.push({
-          id: song.id!,
-          title: song.title,
-          popularityScore: score.value.popularityScore,
-          growthScore: score.value.growthScore,
-          engagementScore: score.value.engagementScore,
-          consistencyScore: score.value.consistencyScore,
-          finalScore: score.value.finalScore,
-        })
-      }
-    } catch (err) {
-      console.error('Erro ao carregar score da song', song.id, err)
-    }
-  }
-
-  loading.value = false
-}
-
-const { query, filteredList } = useListFilter(scoreList, (song, q) =>
+const { query, filteredList } = useListFilter(songList, (song, q) =>
   song.title.toLowerCase().includes(q.toLowerCase()),
 )
 
 const comparators = {
-  title: (a: SongWithScore, b: SongWithScore) =>
+  title: (a: Song, b: Song) =>
     a.title.localeCompare(b.title, 'pt', { sensitivity: 'base' }),
 
-  popularityScore: (a: SongWithScore, b: SongWithScore) => b.popularityScore - a.popularityScore,
+  popularityScore: (a: Song, b: Song) => b.score.popularityScore - a.score.popularityScore,
 
-  growthScore: (a: SongWithScore, b: SongWithScore) => b.growthScore - a.growthScore,
+  growthScore: (a: Song, b: Song) => b.score.growthScore - a.score.growthScore,
 
-  engagementScore: (a: SongWithScore, b: SongWithScore) => b.engagementScore - a.engagementScore,
+  engagementScore: (a: Song, b: Song) => b.score.engagementScore - a.score.engagementScore,
 
-  consistencyScore: (a: SongWithScore, b: SongWithScore) => b.consistencyScore - a.consistencyScore,
+  consistencyScore: (a: Song, b: Song) => b.score.consistencyScore - a.score.consistencyScore,
 
-  finalScore: (a: SongWithScore, b: SongWithScore) => b.finalScore - a.finalScore,
+  finalScore: (a: Song, b: Song) => b.score.finalScore - a.score.finalScore,
 }
 
 const { sortedList, setSort } = useListSorting(filteredList, comparators)
@@ -143,12 +113,12 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
 
         <div class="mt-4 space-y-2 text-sm text-gray-700">
           <div>
-            🏆 Final: <strong>{{ song.finalScore.toFixed(2) }}</strong>
+            🏆 Final: <strong>{{ song.score?.finalScore?.toFixed(2) }}</strong>
           </div>
-          <div>🔥 Popularity: {{ song.popularityScore.toFixed(2) }}</div>
-          <div>📈 Growth: {{ song.growthScore.toFixed(2) }}</div>
-          <div>💬 Engagement: {{ song.engagementScore.toFixed(2) }}</div>
-          <div>📊 Consistency: {{ song.consistencyScore.toFixed(2) }}</div>
+          <div>🔥 Popularity: {{ song.score?.popularityScore.toFixed(2) }}</div>
+          <div>📈 Growth: {{ song.score?.growthScore.toFixed(2) }}</div>
+          <div>💬 Engagement: {{ song.score?.engagementScore.toFixed(2) }}</div>
+          <div>📊 Consistency: {{ song.score?.consistencyScore.toFixed(2) }}</div>
         </div>
       </div>
     </div>

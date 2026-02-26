@@ -1,3 +1,5 @@
+import type { SongPerformanceScore } from '@/composables/useSongScoreApi.ts'
+
 export type SongStatus =
   | 'DRAFT'
   | 'BACKLOG'
@@ -15,5 +17,6 @@ export interface Song {
   album: string
   releaseYear: number
   status: SongStatus
+  score: SongPerformanceScore
   tags: string[]
 }
