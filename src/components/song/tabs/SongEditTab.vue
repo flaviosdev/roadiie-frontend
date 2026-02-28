@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, toRaw, watch } from 'vue'
 import type { Song } from '@/types/song'
+import { allStatuses, statusLabels } from '@/types/songStatus.ts'
 
 const props = defineProps<{
   song: Song
@@ -57,9 +58,9 @@ function handleClick() {
 
   if (Object.keys(patch).length === 0) return
 
-  emit('updatedSong', <Song> {
+  emit('updatedSong', <Song>{
     id: editableSong.id,
-    ...patch
+    ...patch,
   })
 }
 </script>
@@ -99,14 +100,9 @@ function handleClick() {
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1"> Status </label>
         <select v-model="editableSong.status" class="w-full border rounded px-3 py-2 text-sm">
-          <option value="DRAFT">DRAFT</option>
-          <option value="BACKLOG">BACKLOG</option>
-          <option value="IN_PROGRESS">IN_PROGRESS</option>
-          <option value="REHEARSING">REHEARSING</option>
-          <option value="RECORDED">RECORDED</option>
-          <option value="PRODUCED">PRODUCED</option>
-          <option value="READY">READY</option>
-          <option value="PUBLISHED">PUBLISHED</option>
+          <option v-for="status in allStatuses" :key="status" :value="status">
+            {{ statusLabels[status] }}
+          </option>
         </select>
       </div>
     </div>

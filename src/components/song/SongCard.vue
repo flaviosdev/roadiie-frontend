@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Song } from '@/types/song.ts'
 import { ref, watch } from 'vue'
+import { allStatuses, statusClasses, statusLabels } from '@/types/songStatus.ts'
 
 const props = defineProps<{
   song: Song
@@ -36,17 +37,6 @@ watch(
   () => props.song.status,
   (val) => (localStatus.value = val),
 )
-
-const statusClasses: Record<string, string> = {
-  DRAFT: 'bg-gray-200 text-gray-700',
-  BACKLOG: 'bg-slate-200 text-slate-700',
-  IN_PROGRESS: 'bg-blue-200 text-blue-700',
-  REHEARSING: 'bg-indigo-200 text-indigo-700',
-  RECORDED: 'bg-orange-200 text-orange-700',
-  PRODUCED: 'bg-purple-200 text-purple-700',
-  READY: 'bg-teal-200 text-teal-700',
-  PUBLISHED: 'bg-green-200 text-green-700',
-}
 
 const isEditingStatus = ref(false)
 const localStatus = ref(props.song.status)
@@ -85,8 +75,7 @@ function saveTags() {
 }
 
 function arraysEquals(a: string[], b: string[]) {
-  return a.length === b.length &&
-    [...a].sort().every((val, i) => val === [...b].sort()[i])
+  return a.length === b.length && [...a].sort().every((val, i) => val === [...b].sort()[i])
 }
 </script>
 
@@ -116,7 +105,7 @@ function arraysEquals(a: string[], b: string[]) {
           statusClasses[song.status],
         ]"
       >
-        {{ song.status }}
+        {{ statusLabels[song.status] }}
       </span>
 
       <!-- Dropdown quando clicado -->
@@ -127,8 +116,8 @@ function arraysEquals(a: string[], b: string[]) {
         @change="saveStatus"
         class="text-xs border rounded px-2 py-1"
       >
-        <option v-for="status in Object.keys(statusClasses)" :key="status" :value="status">
-          {{ status }}
+        <option v-for="status in allStatuses" :key="status" :value="status">
+          {{ statusLabels[status] }}
         </option>
       </select>
     </div>

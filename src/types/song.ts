@@ -1,14 +1,5 @@
 import type { SongPerformanceScore } from '@/composables/useSongScoreApi.ts'
-
-export type SongStatus =
-  | 'DRAFT'
-  | 'BACKLOG'
-  | 'IN_PROGRESS'
-  | 'REHEARSING'
-  | 'RECORDED'
-  | 'PRODUCED'
-  | 'READY'
-  | 'PUBLISHED'
+import type { SongStatus } from '@/types/songStatus.ts'
 
 export interface Song {
   id?: string

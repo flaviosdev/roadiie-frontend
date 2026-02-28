@@ -4,6 +4,7 @@ import { useSongApi } from '@/composables/useSongApi'
 import { useListFilter } from '@/composables/useListFilter'
 import { useListSorting } from '@/composables/useListSorting'
 import type { Song } from '@/types/song.ts'
+import { useSongScoreApi } from '@/composables/useSongScoreApi.ts'
 
 interface SongWithScore {
   id: string
@@ -16,11 +17,13 @@ interface SongWithScore {
 }
 
 const { songList, loadSongList } = useSongApi()
+const { scoreList, loadScoreList } = useSongScoreApi()
 
 const loading = ref(false)
 
 onMounted(async () => {
   await loadSongList()
+  await loadScoreList()
 })
 
 const { query, filteredList } = useListFilter(songList, (song, q) =>

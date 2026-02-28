@@ -1,37 +1,38 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useSongApi } from '@/composables/useSongApi.ts'
-import type { Song } from '@/types/song.ts'
+import type { Song, SongStatus } from '@/types/song.ts'
 import SongCardGrid from '@/components/song/SongCardGrid.vue'
 import SongSidePanel from '@/components/song/SongSidePanel.vue'
 import { useListFilter } from '@/composables/useListFilter.ts'
 import { useListSorting } from '@/composables/useListSorting.ts'
+import { allStatuses, statusClasses, statusLabels } from '@/types/songStatus.ts'
 
 const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } =
   useSongApi()
 
 const { query, filteredList } = useListFilter(songList, (search, q) =>
-  search.title.toLowerCase().includes(q.toLowerCase())
+  search.title.toLowerCase().includes(q.toLowerCase()),
 )
 
 const selectedId = ref<string | null>(null)
 const isPanelOpen = ref(false)
 const selectedSong = computed(() => songList.value.find((s) => s.id === selectedId.value))
+const statusFilter = ref<SongStatus | 'ALL'>('ALL')
+
+const filteredByStatus = computed(() => {
+  if (statusFilter.value == 'ALL') return filteredList.value
+
+  return filteredList.value.filter((song) => song.status === statusFilter.value)
+})
 
 const comparators = {
-
-  title: (a: Song, b: Song) => a.title.localeCompare(b.title, 'pt', { sensitivity: 'base'}),
-
+  title: (a: Song, b: Song) => a.title.localeCompare(b.title, 'pt', { sensitivity: 'base' }),
   releaseYear: (a: Song, b: Song) => a.releaseYear - b.releaseYear,
-
   status: (a: Song, b: Song) => a.status.localeCompare(b.status),
 }
 
-const {
-  sortedList: sortedSongs,
-  sortKey,
-  setSort
-} = useListSorting(filteredList, comparators)
+const { sortedList: sortedSongs, sortKey, setSort } = useListSorting(filteredByStatus, comparators)
 
 const formSong = ref(null)
 
@@ -89,17 +90,32 @@ async function onSongCreated(title: string) {
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
       <div class="flex flex-wrap gap-2">
-        <button @click="setSort('title')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+        <button
+          @click="setSort('title')"
+          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+        >
           Title
         </button>
-        <button @click="setSort('releaseYear')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+        <button
+          @click="setSort('releaseYear')"
+          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+        >
           Release Year
         </button>
-        <button @click="setSort('status')" class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100">
+        <button
+          @click="setSort('status')"
+          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+        >
           Status
         </button>
       </div>
 
+      <select v-model="statusFilter" class="px-3 py-2 text-sm rounded-md border border-gray-300">
+        <option value="ALL">All</option>
+        <option v-for="status in allStatuses" :key="status" :value="status">
+          {{ statusLabels[status] }}
+        </option>
+      </select>
       <input
         type="text"
         v-model="query"
