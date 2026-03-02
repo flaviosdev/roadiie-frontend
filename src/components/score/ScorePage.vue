@@ -1,48 +1,35 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useSongApi } from '@/composables/useSongApi'
+import { onMounted, ref } from 'vue'
 import { useListFilter } from '@/composables/useListFilter'
 import { useListSorting } from '@/composables/useListSorting'
-import type { Song } from '@/types/song.ts'
 import { useSongScoreApi } from '@/composables/useSongScoreApi.ts'
+import type { SongScore } from '@/types/songScore.ts'
 
-interface SongWithScore {
-  id: string
-  title: string
-  popularityScore: number
-  growthScore: number
-  engagementScore: number
-  consistencyScore: number
-  finalScore: number
-}
-
-const { songList, loadSongList } = useSongApi()
-const { scoreList, loadScoreList } = useSongScoreApi()
+const { scoreList, loadScore } = useSongScoreApi()
 
 const loading = ref(false)
 
 onMounted(async () => {
-  await loadSongList()
-  await loadScoreList()
+  await loadScore()
 })
 
-const { query, filteredList } = useListFilter(songList, (song, q) =>
-  song.title.toLowerCase().includes(q.toLowerCase()),
+const { query, filteredList } = useListFilter(scoreList, (song, q) =>
+  song.songName.toLowerCase().includes(q.toLowerCase()),
 )
 
 const comparators = {
-  title: (a: Song, b: Song) =>
-    a.title.localeCompare(b.title, 'pt', { sensitivity: 'base' }),
+  title: (a: SongScore, b: SongScore) =>
+    a.songName.localeCompare(b.songName, 'pt', { sensitivity: 'base' }),
 
-  popularityScore: (a: Song, b: Song) => b.score.popularityScore - a.score.popularityScore,
+  popularityScore: (a: SongScore, b: SongScore) => b.popularityScore - a.popularityScore,
 
-  growthScore: (a: Song, b: Song) => b.score.growthScore - a.score.growthScore,
+  growthScore:  (a: SongScore, b: SongScore) => b.growthScore - a.growthScore,
 
-  engagementScore: (a: Song, b: Song) => b.score.engagementScore - a.score.engagementScore,
+  engagementScore:  (a: SongScore, b: SongScore) => b.engagementScore - a.engagementScore,
 
-  consistencyScore: (a: Song, b: Song) => b.score.consistencyScore - a.score.consistencyScore,
+  consistencyScore:  (a: SongScore, b: SongScore) => b.consistencyScore - a.consistencyScore,
 
-  finalScore: (a: Song, b: Song) => b.score.finalScore - a.score.finalScore,
+  finalScore:  (a: SongScore, b: SongScore) => b.finalScore - a.finalScore,
 }
 
 const { sortedList, setSort } = useListSorting(filteredList, comparators)
@@ -111,17 +98,17 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
         class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
       >
         <div class="text-lg font-bold text-gray-900">
-          {{ song.title }}
+          {{ song.songName }}
         </div>
 
         <div class="mt-4 space-y-2 text-sm text-gray-700">
           <div>
-            🏆 Final: <strong>{{ song.score?.finalScore?.toFixed(2) }}</strong>
+            🏆 Final: <strong>{{ song.finalScore?.toFixed(2) }}</strong>
           </div>
-          <div>🔥 Popularity: {{ song.score?.popularityScore.toFixed(2) }}</div>
-          <div>📈 Growth: {{ song.score?.growthScore.toFixed(2) }}</div>
-          <div>💬 Engagement: {{ song.score?.engagementScore.toFixed(2) }}</div>
-          <div>📊 Consistency: {{ song.score?.consistencyScore.toFixed(2) }}</div>
+          <div>🔥 Popularity: {{ song.popularityScore.toFixed(2) }}</div>
+          <div>📈 Growth: {{ song.growthScore.toFixed(2) }}</div>
+          <div>💬 Engagement: {{ song.engagementScore.toFixed(2) }}</div>
+          <div>📊 Consistency: {{ song.consistencyScore.toFixed(2) }}</div>
         </div>
       </div>
     </div>

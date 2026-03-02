@@ -1,46 +1,41 @@
 import { ref } from 'vue'
 import { http } from '@/api/http'
+import type { SongScore } from '@/types/songScore.ts'
 
-export interface SongPerformanceScore {
-  popularityScore: number
-  growthScore: number
-  engagementScore: number
-  consistencyScore: number
-  finalScore: number
-  date: string
-}
 
-export function useSongScoreApi(songId: string) {
-  const score = ref<SongPerformanceScore | null>(null)
-  const loadingScore = ref(false)
-  const errorScore = ref<string | null>(null)
 
-  const loadScore = async () => {
-    loadingScore.value = true
-    errorScore.value = null
+const scoreList = ref<SongScore[] | null>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+export function useSongScoreApi() {
+
+  const loadScores = async () => {
+    loading.value = true
+    error.value = null
 
     try {
-      const { data } = await http.get(`/song/${songId}/score`)
-      score.value = data
+      const { data } = await http.get(`/score`)
+      scoreList.value = data.content
     } catch (error: any) {
-      errorScore.value = error?.message ?? 'Failed to load score'
+      error.value = error?.message ?? 'Failed to load score'
       console.error('useSongScoreApi.score error', error)
     } finally {
-      loadingScore.value = false
+      loading.value = false
     }
   }
 
   const resetScore = () => {
-    score.value = null
-    errorScore.value = null
-    loadingScore.value = false
+    scoreList.value = null
+    error.value = null
+    loading.value = false
   }
 
   return {
-    score,
-    loadingScore,
-    errorScore,
-    loadScore,
+    scoreList,
+    loading,
+    error,
+    loadScore: loadScores,
     resetScore,
   }
 }

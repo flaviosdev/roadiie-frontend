@@ -1,4 +1,3 @@
-import type { SongPerformanceScore } from '@/composables/useSongScoreApi.ts'
 import type { SongStatus } from '@/types/songStatus.ts'
 
 export interface Song {
@@ -8,6 +7,5 @@ export interface Song {
   album: string
   releaseYear: number
   status: SongStatus
-  score: SongPerformanceScore
   tags: string[]
 }
