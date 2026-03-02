@@ -11,11 +11,12 @@ const props = defineProps<{
 }>()
 
 const { searchSong, createSong, findSongById } = useSongApi()
-const { updateUpload } = useUploadApi()
+const { updateUpload, deleteUpload } = useUploadApi()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: Upload | null): void
   (e: 'saved'): void
+  (e: 'deleted', value: Upload | null): void
   (e: 'updatedUpload'): void
   (e: 'cancelled'): void
 }>()
@@ -93,6 +94,16 @@ const onGetSongById = async (id: string) => {
   song.value = songResponse ?? null
 }
 
+async function onDelete(id: string) {
+  if (!id.valueOf()) return
+
+  const confirmed = confirm(`Are you sure you want to delete ${id}?`)
+
+  if (!confirmed) return
+
+  emit('deleted', props.modelValue)
+}
+
 function toInputDateTime(d: string | Date) {
   const date = typeof d === 'string' ? new Date(d) : d
   // returns "YYYY-MM-DDTHH:MM" format for datetime-local
@@ -135,16 +146,21 @@ async function save() {
     console.error('Erro ao salvar upload:', err)
   }
 }
-
 </script>
 
 <template>
   <div class="space-y-4">
-    <h2 class="text-xl font-semibold">
-      {{ id ? 'Edit Upload' : 'Create Upload' }}
-    </h2>
+    <div class="flex justify-between items-center">
+      <h2 class="text-xl font-semibold">
+        {{ id ? 'Edit Upload' : 'Create Upload' }}
+      </h2>
 
-      <label class="block text-sm font-medium">Uploads imported via API can not be edited.</label>
+      <button v-if="id" @click="onDelete" class="text-red-600 text-sm hover:underline">
+        Delete
+      </button>
+    </div>
+
+    <label class="block text-sm font-medium">Uploads imported via API can not be edited.</label>
 
     <div class="grid grid-cols-1 gap-3">
       <div>
@@ -161,7 +177,12 @@ async function save() {
 
       <div>
         <label class="block text-sm font-medium">Title</label>
-        <input :readonly="isImported()" v-model="title" type="text" class="border rounded w-full p-2" />
+        <input
+          :readonly="isImported()"
+          v-model="title"
+          type="text"
+          class="border rounded w-full p-2"
+        />
       </div>
 
       <div>
@@ -178,27 +199,51 @@ async function save() {
 
       <div>
         <label class="block text-sm font-medium">Platform ID</label>
-        <input :readonly="isImported()" v-model="platformId" type="text" class="border rounded w-full p-2" />
+        <input
+          :readonly="isImported()"
+          v-model="platformId"
+          type="text"
+          class="border rounded w-full p-2"
+        />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload URL</label>
-        <input :readonly="isImported()" v-model="uploadUrl" type="url" class="border rounded w-full p-2" />
+        <input
+          :readonly="isImported()"
+          v-model="uploadUrl"
+          type="url"
+          class="border rounded w-full p-2"
+        />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Upload Tags</label>
-        <input :readonly="isImported()" v-model="uploadTagsString" type="text" class="border rounded w-full p-2" />
+        <input
+          :readonly="isImported()"
+          v-model="uploadTagsString"
+          type="text"
+          class="border rounded w-full p-2"
+        />
       </div>
 
       <div>
         <label class="block text-sm font-medium">Uploaded At</label>
-        <input :readonly="isImported()" v-model="uploadedAtString" type="datetime-local" class="border rounded w-full p-2" />
+        <input
+          :readonly="isImported()"
+          v-model="uploadedAtString"
+          type="datetime-local"
+          class="border rounded w-full p-2"
+        />
       </div>
     </div>
 
     <div class="flex gap-2 mt-2">
-      <button :readonly="isImported()" @click="save" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button
+        :readonly="isImported()"
+        @click="save"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
         {{ id ? 'Update' : 'Create' }}
       </button>
     </div>

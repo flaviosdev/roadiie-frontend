@@ -12,6 +12,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'updateUpload', upload: Upload): void
+  (e: 'deleted', upload: Upload): void
 
 }>()
 
@@ -19,6 +20,10 @@ const emit = defineEmits<{
 
 <template>
   <SidePanel :show="show" @close="emit('close')">
-    <UploadAnalysisPanel v-if="upload" :upload="upload" @updated="emit('updateUpload', $event)"/>
+    <UploadAnalysisPanel v-if="upload"
+                         :upload="upload"
+                         @updated="emit('updateUpload', $event)"
+                         @deleted="emit('deleted', $event)"
+    />
   </SidePanel>
 </template>

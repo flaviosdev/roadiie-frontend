@@ -54,6 +54,7 @@ const activeTab = ref<TabKey>('overview')
         v-if="activeTab === 'details'"
         :upload="upload"
         @updated="$emit('updated', $event)"
+        @deleted="$emit('deleted', $event)"
       />
 
       <UploadToolsTab v-if="activeTab === 'tools'" :upload="upload" />

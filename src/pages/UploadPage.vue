@@ -7,7 +7,7 @@ import UploadSidePanel from '@/components/upload/UploadSidePanel.vue'
 import { useListSorting } from '@/composables/useListSorting.ts'
 import { useListFilter } from '@/composables/useListFilter.ts'
 
-const { uploadList, loadUploadList } = useUploadApi()
+const { uploadList, loadUploadList, deleteUpload } = useUploadApi()
 
 const { query, filteredList } = useListFilter(uploadList, (upload, q) =>
   upload.title.toLowerCase().includes(q.toLowerCase()),
@@ -54,6 +54,11 @@ function onUpdatedUpload(updatedUpload: Upload) {
   uploadList.value[index] = { ...updatedUpload }
   selectedId.value = updatedUpload.id
   alert('Upload was updated')
+}
+
+async function onDeleteUpload(upload: Upload) {
+  if (!upload.id) return
+  await deleteUpload(upload.id)
 }
 
 const sortByDate = () => setSort('date')
@@ -116,6 +121,7 @@ const sortByAverageViews = () => setSort('avgViews')
       v-if="selectedUpload"
       :upload="selectedUpload"
       @updateUpload="onUpdatedUpload"
+      @deleted="onDeleteUpload"
       @close="closeForm"
     />
   </div>

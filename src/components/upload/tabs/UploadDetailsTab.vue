@@ -2,7 +2,11 @@
   <div class="space-y-4">
     <div class="text-sm text-gray-500">Edit upload details and metadata.</div>
 
-    <UploadForm v-model="editableUpload" @updatedUpload="onUpdatedUpload" />
+    <UploadForm
+      v-model="editableUpload"
+      @updatedUpload="onUpdatedUpload"
+      @deleted="onDeleteUpload"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -16,6 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'updated', upload: Upload): void
+  (e: 'deleted', upload: Upload): void
 }>()
 
 const editableUpload = ref<Upload>({ ...props.upload })
@@ -24,10 +29,14 @@ watch(
   () => props.upload,
   (newUpload) => {
     editableUpload.value = { ...newUpload }
-  }
+  },
 )
 
 function onUpdatedUpload(updated: Upload): void {
   emit('updated', updated)
+}
+
+function onDeleteUpload() {
+  emit('deleted', props.upload)
 }
 </script>
