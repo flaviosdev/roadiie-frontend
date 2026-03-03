@@ -20,6 +20,7 @@
       <span>👍 {{ compactNumber(upload.summary?.totalLikes) }}</span>
       <span>💬 {{ compactNumber(upload.summary?.totalComments) }}</span>
       <span>📈 {{ compactNumber(upload.summary?.totalViewsPerDay) }}</span>
+      <span>{{ upload.songId ? '🎶' : '' }}</span>
     </div>
 
     <div class="font-semibold text-gray-900 line-clamp-2">
@@ -28,7 +29,7 @@
 
     <div class="text-sm text-gray-500 mt-1 flex justify-between items-center">
       <span class="px-2 py-0.5 rounded-lg text-white text-xs" :class="platformColor">
-        {{ upload.platform }}
+        {{ upload.platformId }}
       </span>
       <span>{{ formatDate(upload.uploadedAt) }}</span>
     </div>
@@ -36,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-
 import type { Upload } from '@/types/upload.ts'
 import { computed } from 'vue'
 
@@ -53,8 +53,10 @@ const platformIcon = computed(() => {
 
 const platformColor = computed(() => {
   switch (props.upload.platformId) {
-    case 'youtube': return 'bg-red-600'
-    default: return 'bg-blue-600'
+    case 'youtube':
+      return 'bg-red-600'
+    default:
+      return 'bg-blue-600'
   }
 })
 
@@ -66,7 +68,7 @@ function formatDate(d: string | Date | undefined) {
 
 function compactNumber(n: number): string {
   if (n < 1000) return n.toString()
-  if (n < 1_000_000) return (n/1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k'
+  if (n < 1_000_000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k'
   return (n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1) + 'M'
 }
 </script>
