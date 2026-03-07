@@ -28,7 +28,7 @@ const isActive = (path: string) => {
     <div class="max-w-6xl mx-auto px-4">
       <div class="flex items-center justify-between h-14">
         <!-- Logo -->
-        <div class="font-semibold text-gray-800">🎵 Repertoire</div>
+        <div class="font-semibold text-gray-800">🎵 Song Strata</div>
 
         <!-- Desktop menu -->
         <div class="hidden md:flex items-center gap-1">
