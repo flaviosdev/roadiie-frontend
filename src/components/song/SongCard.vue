@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Song } from '@/types/song.ts'
 import { ref, watch } from 'vue'
-import { allStatuses, statusClasses, statusLabels } from '@/types/songStatus.ts'
+import { allStatuses, type SongStatus, statusClasses, statusLabels } from '@/types/songStatus.ts'
+import BaseCard from '@/components/ui/BaseCard.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const props = defineProps<{
   song: Song
@@ -38,19 +40,13 @@ watch(
   (val) => (localStatus.value = val),
 )
 
-const isEditingStatus = ref(false)
 const localStatus = ref(props.song.status)
 
-function saveStatus() {
-  isEditingStatus.value = false
-
-  if (localStatus.value !== props.song.status) {
-    emit('statusUpdated', <Song>{
-      id: props.song.id,
-      status: localStatus.value,
-    })
-  }
-  emit('editingFinished', props.song.id)
+function onUpdateSongStatus(status: string) {
+  emit('statusUpdated', <Song>{
+    id: props.song.id,
+    status,
+  })
 }
 
 function toggleTag(tag: string) {
@@ -80,47 +76,23 @@ function arraysEquals(a: string[], b: string[]) {
 </script>
 
 <template>
-  <div
-    class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md hover:border-gray-300 transition-all duration-150"
-    @click="$emit('selectSong', song.id)"
-  >
-    <!-- título grande -->
+  <BaseCard clickable @click="$emit('selectsong', song.id)">
+    <!-- body -->
     <div class="text-lg font-bold text-gray-900 leading-tight">
       {{ song.title }}
     </div>
 
-    <!-- artista -->
     <div class="text-sm text-gray-600 mt-0.5">
       {{ song.artist }}
     </div>
 
-    <!-- status todo: extrair para componente-->
-    <div class="mt-2">
-      <!-- Badge normal -->
-      <span
-        v-if="!isEditingStatus"
-        @click.stop="isEditingStatus = true"
-        :class="[
-          'inline-flex items-center px-2 py-1 text-xs font-medium rounded cursor-pointer transition',
-          statusClasses[song.status],
-        ]"
-      >
-        {{ statusLabels[song.status] }}
-      </span>
-
-      <!-- Dropdown quando clicado -->
-      <select
-        v-else
-        v-model="localStatus"
-        @blur="saveStatus"
-        @change="saveStatus"
-        class="text-xs border rounded px-2 py-1"
-      >
-        <option v-for="status in allStatuses" :key="status" :value="status">
-          {{ statusLabels[status] }}
-        </option>
-      </select>
-    </div>
+    <StatusBadge
+      :model-value="song.status"
+      :statuses="allStatuses"
+      :labels="statusLabels"
+      :classes="statusClasses"
+      @update:modelValue="onUpdateSongStatus"
+    />
 
     <!-- tags -->
     <div class="mt-3">
@@ -159,12 +131,13 @@ function arraysEquals(a: string[], b: string[]) {
       </div>
     </div>
 
-    <!-- infos rápidas -->
-    <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600 mt-3">
-      <span v-if="song.releaseYear">📅 {{ song.releaseYear }}</span>
-      <span v-if="song.tags?.length">🏷 {{ song.tags.length }} tags</span>
-    </div>
-  </div>
+    <template #footer>
+      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+        <span v-if="song.releaseYear">📅 {{ song.releaseYear }}</span>
+        <span v-if="song.tags?.length">🏷 {{ song.tags.length }} tags</span>
+      </div>
+    </template>
+  </BaseCard>
 </template>
 
 <style scoped>

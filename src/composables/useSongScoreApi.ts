@@ -25,6 +25,15 @@ export function useSongScoreApi() {
     }
   }
 
+  const generateScores = async () => {
+    loading.value = true
+    try {
+      await http.post('/score')
+    } finally {
+      loading.value = false
+    }
+  }
+
   const resetScore = () => {
     scoreList.value = null
     error.value = null
@@ -35,6 +44,7 @@ export function useSongScoreApi() {
     scoreList,
     loading,
     error,
+    generateScores,
     loadScore: loadScores,
     resetScore,
   }

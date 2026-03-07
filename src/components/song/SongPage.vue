@@ -7,6 +7,10 @@ import SongSidePanel from '@/components/song/SongSidePanel.vue'
 import { useListFilter } from '@/composables/useListFilter.ts'
 import { useListSorting } from '@/composables/useListSorting.ts'
 import { allStatuses, statusClasses, statusLabels } from '@/types/songStatus.ts'
+import CardGrid from '@/components/ui/CardGrid.vue'
+import SongCard from '@/components/song/SongCard.vue'
+import CreateCard from '@/components/ui/CreateCard.vue'
+import AppPage from '@/components/ui/AppPage.vue'
 
 const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } =
   useSongApi()
@@ -85,58 +89,61 @@ async function onSongCreated(title: string) {
 </script>
 
 <template>
-  <div class="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-    <h1 class="text-2xl font-semibold text-gray-800 mb4">Songs</h1>
+  <AppPage title="Song">
+    <template #toolbar>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="setSort('title')"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Title
+          </button>
+          <button
+            @click="setSort('releaseYear')"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Release Year
+          </button>
+          <button
+            @click="setSort('status')"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Status
+          </button>
+        </div>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-      <div class="flex flex-wrap gap-2">
-        <button
-          @click="setSort('title')"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Title
-        </button>
-        <button
-          @click="setSort('releaseYear')"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Release Year
-        </button>
-        <button
-          @click="setSort('status')"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Status
-        </button>
+        <select v-model="statusFilter" class="px-3 py-2 text-sm rounded-md border border-gray-300">
+          <option value="ALL">All</option>
+          <option v-for="status in allStatuses" :key="status" :value="status">
+            {{ statusLabels[status] }}
+          </option>
+        </select>
+        <input
+          type="text"
+          v-model="query"
+          placeholder="Filter songs..."
+          class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+        />
       </div>
+    </template>
 
-      <select v-model="statusFilter" class="px-3 py-2 text-sm rounded-md border border-gray-300">
-        <option value="ALL">All</option>
-        <option v-for="status in allStatuses" :key="status" :value="status">
-          {{ statusLabels[status] }}
-        </option>
-      </select>
-      <input
-        type="text"
-        v-model="query"
-        placeholder="Filter songs..."
-        class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+    <CardGrid>
+      <CreateCard
+        title="Criar Música"
+        subtitle="Clique para adicionar"
+        placeholder="Nome da música..."
+        @create="onSongCreated"
       />
-    </div>
 
-    <SongCardGrid
-      :songList="sortedSongs"
-      @selectSong="selectSong"
-      @statusUpdated="onPatchedSong"
-      @songCreated="onSongCreated"
-    />
-
-    <SongSidePanel
-      v-if="selectedSong"
-      :show="isPanelOpen"
-      :song="selectedSong"
-      @close="closePanel"
-      @updatedSong="onPatchedSong"
-    />
-  </div>
+      <SongCard
+        v-for="song in sortedSongs"
+        :key="song.id"
+        :song="song"
+        @selectSong="selectSong"
+        @statusUpdated="onPatchedSong"
+        @songCreated="onSongCreated"
+      />
+    </CardGrid>
+  </AppPage>
 </template>
