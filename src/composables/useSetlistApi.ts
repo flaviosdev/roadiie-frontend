@@ -25,9 +25,15 @@ export function useSetlistApi() {
     }
   }
 
+  const createSetlist = async (setlist: Setlist) => {
+    await http.post<Setlist>('/setlist', setlist)
+    loadSetlists()
+  }
+
   return {
     page,
     loading,
     loadSetlists,
+    createSetlist,
   }
 }
