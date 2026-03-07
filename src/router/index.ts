@@ -22,7 +22,7 @@ const router = createRouter({
       props: true,
       meta: { requireAuth: true } },
     { path: '/score', name: 'score', component: ScorePage, meta: { requireAuth: true } },
-    { path: '/login', name: 'login', component: LoginPage },
+    { path: '/login', name: 'login', component: LoginPage, meta: { public: true} },
   ],
 })
 

@@ -3,8 +3,10 @@ import TopMenu from '@/components/TopMenu.vue'
 import { useSongApi } from '@/composables/useSongApi.ts'
 import { onMounted } from 'vue'
 import { globalError } from '@/api/globalError.ts'
+import { useRoute } from 'vue-router'
 
 const { loadSongList } = useSongApi()
+const route = useRoute()
 
 onMounted(() => {
   loadSongList()
@@ -17,7 +19,7 @@ onMounted(() => {
     {{ globalError }}
   </div>
   <div>
-    <TopMenu />
+    <TopMenu v-if="!route.meta.public" />
     <router-view />
   </div>
 </template>
