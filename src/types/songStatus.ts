@@ -1,5 +1,5 @@
 export type SongStatus =
-  | 'DRAFT'
+  | 'NEW'
   | 'BACKLOG'
   | 'IN_PROGRESS'
   | 'REHEARSING'

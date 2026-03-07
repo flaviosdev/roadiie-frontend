@@ -38,7 +38,7 @@ const activeTab = ref<TabKey>('edit')
         {{ song.title }}
       </h2>
       <div class="text-sm text-gray-500">
-        {{ song.artist }} · {{ song.releaseYear }} · {{ song.genre }}
+        {{ song.artist }} · {{ song.releaseYear }}
       </div>
     </div>
 

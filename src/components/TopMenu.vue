@@ -2,6 +2,7 @@
   <nav style="padding: 10px; background: #eee;">
     <router-link to="/">Home</router-link> |
     <router-link to="/song">Repertorio</router-link> |
+    <router-link to="/setlists">Setlists</router-link> |
     <router-link to="/upload">Uploads</router-link> |
     <router-link to="/score">Scores</router-link> |
   </nav>

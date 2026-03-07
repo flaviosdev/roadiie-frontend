@@ -5,13 +5,28 @@ import { useListSorting } from '@/composables/useListSorting'
 import { useSongScoreApi } from '@/composables/useSongScoreApi.ts'
 import type { SongScore } from '@/types/songScore.ts'
 
-const { scoreList, loadScore } = useSongScoreApi()
+const { scoreList, loadScore, generateScores: generateScoreList } = useSongScoreApi()
 
 const loading = ref(false)
 
 onMounted(async () => {
-  await loadScore()
+  loading.value = true
+  try {
+    await loadScore()
+  } finally {
+    loading.value = false
+  }
 })
+
+async function generateScores() {
+  loading.value = true
+  try {
+    await generateScoreList()
+    await loadScore()
+  } finally {
+    loading.value = false
+  }
+}
 
 const { query, filteredList } = useListFilter(scoreList, (song, q) =>
   song.songName.toLowerCase().includes(q.toLowerCase()),
@@ -23,13 +38,13 @@ const comparators = {
 
   popularityScore: (a: SongScore, b: SongScore) => b.popularityScore - a.popularityScore,
 
-  growthScore:  (a: SongScore, b: SongScore) => b.growthScore - a.growthScore,
+  growthScore: (a: SongScore, b: SongScore) => b.growthScore - a.growthScore,
 
-  engagementScore:  (a: SongScore, b: SongScore) => b.engagementScore - a.engagementScore,
+  engagementScore: (a: SongScore, b: SongScore) => b.engagementScore - a.engagementScore,
 
-  consistencyScore:  (a: SongScore, b: SongScore) => b.consistencyScore - a.consistencyScore,
+  consistencyScore: (a: SongScore, b: SongScore) => b.consistencyScore - a.consistencyScore,
 
-  finalScore:  (a: SongScore, b: SongScore) => b.finalScore - a.finalScore,
+  finalScore: (a: SongScore, b: SongScore) => b.finalScore - a.finalScore,
 }
 
 const { sortedList, setSort } = useListSorting(filteredList, comparators)
@@ -80,6 +95,16 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
         </button>
       </div>
 
+      <div class="flex items-center gap-2">
+
+        <button
+          @click="generateScores"
+          class="px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-800"
+        >
+          Generate
+        </button>
+      </div>
+
       <input
         v-model="query"
         type="text"
@@ -91,6 +116,16 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
     <!-- grid -->
     <div v-if="loading" class="text-gray-500">Loading scores...</div>
 
+    <div v-else-if="!sortedList.length" class="text-center py-16">
+      <p class="text-gray-500 mb-4">No scores generated yet.</p>
+
+      <button
+        @click="generateScores"
+        class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800"
+      >
+        Generate Scores
+      </button>
+    </div>
     <div v-else class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
       <div
         v-for="song in sortedList"
