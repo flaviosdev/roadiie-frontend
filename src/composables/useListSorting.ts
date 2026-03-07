@@ -24,7 +24,7 @@ export function useListSorting<T>(
       ascending.value = !ascending.value
     } else {
       sortKey.value = key
-      ascending.value = false
+      ascending.value = true
     }
   }
 
