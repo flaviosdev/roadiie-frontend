@@ -28,9 +28,15 @@ export function useSetlistItemApi() {
     await loadItems(setlistId)
   }
 
+  const updateItem = async (setlistId: string, setlistItemId: string, setlistItem: SetlistItem) => {
+    await http.put<SetlistItem>(`/setlist/${setlistId}/items/${setlistItemId}`, setlistItem)
+    await loadItems(setlistId)
+  }
+
   return {
     page,
     loadItems,
     createItem,
+    updateItem,
   }
 }

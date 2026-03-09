@@ -8,19 +8,21 @@ import {
   setlistItemStatusClasses,
   setlistItemStatusLabels,
 } from '@/types/setlistItemStatus.ts'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const props = defineProps<{
   setlistItem: SetlistItem
 }>()
 
 const emit = defineEmits<{
-  (e: 'setlistItemUpdated', value: Setlist): void
+  (e: 'updateSetlistItem', value: SetlistItem): void
   (e: 'selectSetlistItem', value: string): void
 }>()
 
 function onUpdateSetlistItemStatus(status: string) {
-  emit('setlistItemUpdated', <SetlistItem>{
+  emit('updateSetlistItem', <SetlistItem>{
     id: props.setlistItem.id,
+    setlistId: props.setlistItem.setlistId,
     status,
   })
 }
@@ -36,6 +38,7 @@ function onUpdateSetlistItemStatus(status: string) {
     </template>
 
     <StatusBadge
+      v-if="setlistItem.status"
       :model-value="setlistItem.status"
       :statuses="allSetlistItemStatuses"
       :labels="setlistItemStatusLabels"

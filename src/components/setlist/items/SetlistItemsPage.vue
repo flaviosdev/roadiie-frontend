@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSetlistItemApi } from '@/composables/useSetlistItemApi.ts'
 
-const { page, loadItems, createItem } = useSetlistItemApi()
+const { page, loadItems, createItem, updateItem } = useSetlistItemApi()
 const route = useRoute()
 
 const props = defineProps<{
@@ -22,6 +22,11 @@ function onSetlistItemCreated(value: string) {
 
 function onSelectSetlistItem(value: string) {
   alert(value)
+}
+
+function onUpdateSetlistItem(value: SetlistItem): void {
+
+  updateItem(value.setlistId, value.id, value)
 }
 
 import AppPage from '@/components/ui/AppPage.vue'
@@ -46,6 +51,7 @@ import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
                        :key="setlistItem.id"
                        :setlistItem="setlistItem"
                        @selectSetlistItem="onSelectSetlistItem"
+                       @updateSetlistItem="onUpdateSetlistItem"
       />
 
       <div v-if="page?.empty">
