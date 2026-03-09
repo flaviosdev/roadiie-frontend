@@ -50,7 +50,6 @@ import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
       <SetlistItemCard v-for="setlistItem in page?.content ?? []"
                        :key="setlistItem.id"
                        :setlistItem="setlistItem"
-                       @selectSetlistItem="onSelectSetlistItem"
                        @updateSetlistItem="onUpdateSetlistItem"
       />
 
