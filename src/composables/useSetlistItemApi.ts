@@ -6,17 +6,24 @@ import type { SetlistItem } from '@/types/setlistItem.ts'
 export function useSetlistItemApi() {
   const page = ref<Page<SetlistItem> | null>(null)
 
-  const loadItems = async (
-    setlistId: string,
-    pageNumber = 0,
-    pageSize = 20,
-    sort = 'order,asc',
-  ) => {
+  type LoadParams = {
+    page?: number
+    size?: number
+    sort?: string
+    query?: string
+    status?: string
+  }
+
+  const loadItems = async (setlistId: string, params: LoadParams = {}) => {
+    const { page: pageNumber = 0, size = 20, sort = 'order,asc', query, status } = params
+
     const { data } = await http.get<Page<SetlistItem>>(`/setlist/${setlistId}/items`, {
       params: {
         page: pageNumber,
-        size: pageSize,
+        size,
         sort,
+        query,
+        status,
       },
     })
 
