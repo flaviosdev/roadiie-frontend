@@ -7,6 +7,8 @@ import UploadTimelineTab from '@/components/upload/tabs/timeline/UploadTimelineT
 const props = defineProps<{
   upload: Upload
 }>()
+
+onMounted(()=> console.log(props.upload.summary))
 </script>
 
 <template>

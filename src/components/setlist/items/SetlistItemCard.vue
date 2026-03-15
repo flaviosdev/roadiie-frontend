@@ -9,6 +9,7 @@ import {
   setlistItemStatusLabels,
 } from '@/types/setlistItemStatus.ts'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
+import set = Reflect.set
 
 const props = defineProps<{
   setlistItem: SetlistItem
@@ -18,6 +19,21 @@ const emit = defineEmits<{
   (e: 'updateSetlistItem', value: SetlistItem): void
   (e: 'selectSetlistItem', value: string): void
 }>()
+
+function formatLastRehearsal(date?: string) {
+  if (!date) return 'Never rehearsed'
+
+  const d = new Date(date)
+  const now = new Date()
+
+  const diff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+
+  if (diff === 0) return 'Today'
+  if (diff === 1) return 'Yesterday'
+  if (diff < 7) return `${diff} days ago`
+
+  return d.toLocaleDateString()
+}
 
 function onUpdateSetlistItemStatus(status: string) {
   emit('updateSetlistItem', <SetlistItem>{
@@ -47,7 +63,10 @@ function onUpdateSetlistItemStatus(status: string) {
     />
 
     <template #footer>
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600"></div>
+      <div class="text-xs text-gray-500 flex items-center gap-2">
+        <span class="opacity-70">🎹</span>
+        <span>{{ formatLastRehearsal(setlistItem.lastRehearsedAt) }}</span>
+      </div>
     </template>
   </BaseCard>
 </template>

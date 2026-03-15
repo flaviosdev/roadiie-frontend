@@ -86,17 +86,8 @@ function arraysEquals(a: string[], b: string[]) {
       {{ song.artist }}
     </div>
 
-    <StatusBadge
-      :model-value="song.status"
-      :statuses="allStatuses"
-      :labels="statusLabels"
-      :classes="statusClasses"
-      @update:modelValue="onUpdateSongStatus"
-    />
-
     <!-- tags -->
     <div class="mt-3">
-      <!-- Visual normal -->
       <div
         v-if="!isEditingTags"
         class="flex flex-wrap gap-2 cursor-pointer"
@@ -111,7 +102,6 @@ function arraysEquals(a: string[], b: string[]) {
         <span v-else class="text-xs text-gray-400 italic"> + adicionar tag </span>
       </div>
 
-      <!-- Modo edição -->
       <div v-else class="space-y-2">
         <div class="flex flex-wrap gap-2">
           <button

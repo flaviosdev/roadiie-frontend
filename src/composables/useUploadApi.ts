@@ -23,6 +23,10 @@ export function useUploadApi() {
     }
   }
 
+  const youtubeAuth = async () => {
+    const url = await http.get('/api/oauth2/youtube/auth')
+  }
+
   const getUploadsBySong = async (songId: string, force = false) => {
     if (!force && uploadsBySong.value.has(songId)) {
       return uploadsBySong.value.get(songId)

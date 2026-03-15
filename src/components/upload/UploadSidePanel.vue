@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Song } from '@/types/song'
 import SidePanel from '@/components/ui/SidePanel.vue'
 import UploadAnalysisPanel from '@/components/upload/UploadAnalysisPanel.vue'
 import type { Upload } from '@/types/upload.ts'

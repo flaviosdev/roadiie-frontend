@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSetlistItemApi } from '@/composables/useSetlistItemApi'
 import type { SetlistItem } from '@/types/setlistItem'
@@ -8,9 +8,17 @@ import AppPage from '@/components/ui/AppPage.vue'
 import CardGrid from '@/components/ui/CardGrid.vue'
 import CreateCard from '@/components/ui/CreateCard.vue'
 import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
+import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePanel.vue'
 
 const { page, loadItems, createItem, updateItem } = useSetlistItemApi()
 const route = useRoute()
+
+const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
+
+const selectedListitemId = ref<string | null>(null)
+const isFormOpen = ref(false)
+
+const selectedListitem = computed(() => items.value.find((s) => s.id === selectedListitemId.value))
 
 const props = defineProps<{
   setlistId: string
@@ -21,6 +29,10 @@ const statusFilter = ref('ALL')
 const sort = ref('order,asc')
 const pageNumber = ref(0)
 
+function closeForm() {
+  isFormOpen.value = false
+  selectedListitemId.value = null
+}
 async function fetchItems() {
   console.log(props.setlistId)
   await loadItems(props.setlistId, {
@@ -37,6 +49,11 @@ watch([query, statusFilter], () => {
   pageNumber.value = 0
   fetchItems()
 })
+
+function selectSetlistItem(id: string) {
+  selectedListitemId.value = id
+  isFormOpen.value = true
+}
 
 function setSort(field: string) {
   if (sort.value.startsWith(field)) {
@@ -77,7 +94,7 @@ function onUpdateSetlistItem(value: SetlistItem) {
             @click="setSort('status')"
             class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
           >
-            Title
+            Status
           </button>
         </div>
 
@@ -104,13 +121,23 @@ function onUpdateSetlistItem(value: SetlistItem) {
       />
 
       <SetlistItemCard
-        v-for="setlistItem in page?.content ?? []"
+        v-for="setlistItem in items"
         :key="setlistItem.id"
         :setlistItem="setlistItem"
         @updateSetlistItem="onUpdateSetlistItem"
+        @selectSetlistItem="selectSetlistItem"
       />
 
-      <div v-if="page?.empty">Empty list</div>
+      <SetlistItemSidePanel
+        :show="isFormOpen"
+        v-if="selectedListitem"
+        :setlistItem="selectedListitem"
+        @updateSetlistItem="onUpdateSetlistItem"
+        @close="closeForm"
+      >
+      </SetlistItemSidePanel>
+
+      <div v-if="items.length === 0">Empty list</div>
     </CardGrid>
   </AppPage>
 </template>

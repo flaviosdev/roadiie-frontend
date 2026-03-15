@@ -6,6 +6,10 @@ import type { Upload } from '@/types/upload.ts'
 import UploadSidePanel from '@/components/upload/UploadSidePanel.vue'
 import { useListSorting } from '@/composables/useListSorting.ts'
 import { useListFilter } from '@/composables/useListFilter.ts'
+import AppPage from '@/components/ui/AppPage.vue'
+import CardGrid from '@/components/ui/CardGrid.vue'
+import CreateCard from '@/components/ui/CreateCard.vue'
+import UploadCard from '@/components/upload/UploadCard.vue'
 
 const { uploadList, loadUploadList, deleteUpload } = useUploadApi()
 
@@ -48,6 +52,8 @@ function selectUpload(id: string) {
   isFormOpen.value = true
 }
 
+function loginToYoutube() {}
+
 function onUpdatedUpload(updatedUpload: Upload) {
   const index = uploadList.value.findIndex((u) => u.id === updatedUpload.id)
   if (index === -1) return
@@ -69,60 +75,77 @@ const sortByAverageViews = () => setSort('avgViews')
 </script>
 
 <template>
-  <div class="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-    <h1 class="text-2xl font-semibold text-gray-800 mb-4">Uploads</h1>
+  <AppPage title="Uploads">
+    <template #toolbar>
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="sortByDate"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Date
+          </button>
+          <button
+            @click="sortByViews"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Views
+          </button>
+          <button
+            @click="sortByLikes"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Likes
+          </button>
+          <button
+            @click="sortByComments"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Comments
+          </button>
+          <button
+            @click="sortByAverageViews"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Avg / Day
+          </button>
+        </div>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-      <div class="flex flex-wrap gap-2">
-        <button
-          @click="sortByDate"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Date
-        </button>
-        <button
-          @click="sortByViews"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Views
-        </button>
-        <button
-          @click="sortByLikes"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Likes
-        </button>
-        <button
-          @click="sortByComments"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Comments
-        </button>
-        <button
-          @click="sortByAverageViews"
-          class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-        >
-          Avg / Day
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            @click="loginToYoutube"
+            class="px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-800"
+          >
+            Generate
+          </button>
+        </div>
+
+        <input
+          v-model="query"
+          type="text"
+          placeholder="Filter uploads..."
+          class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+        />
       </div>
+    </template>
 
-      <input
-        v-model="query"
-        type="text"
-        placeholder="Filter uploads..."
-        class="w-full sm:w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+    <CardGrid>
+      <UploadCard
+        v-for="upload in sortedUploads"
+        :key="upload.id"
+        :upload="upload"
+        @select="selectUpload"
+
       />
-    </div>
 
-    <UploadCardGrid :uploadList="sortedUploads" @select="selectUpload" />
-
-    <UploadSidePanel
-      :show="isFormOpen"
-      v-if="selectedUpload"
-      :upload="selectedUpload"
-      @updateUpload="onUpdatedUpload"
-      @deleted="onDeleteUpload"
-      @close="closeForm"
-    />
-  </div>
+      <UploadSidePanel
+        :show="isFormOpen"
+        v-if="selectedUpload"
+        :upload="selectedUpload"
+        @updateUpload="onUpdatedUpload"
+        @deleted="onDeleteUpload"
+        @close="closeForm"
+      />
+    </CardGrid>
+  </AppPage>
 </template>
