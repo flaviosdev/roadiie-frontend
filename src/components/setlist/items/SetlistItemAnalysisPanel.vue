@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'updateSetlistItem', item: SetlistItem): void
+  (e: 'updated', item: SetlistItem): void
 }>()
 
 type TabKey = 'details'
@@ -16,11 +16,11 @@ type TabKey = 'details'
 const activeTab = ref<TabKey>('details')
 
 function onUpdated(item: SetlistItem) {
-  emit('updateSetlistItem', item)
+  emit('updated', item)
 }
 
 function onRehearsed(item: SetlistItem) {
-  emit('updateSetlistItem', item)
+  emit('updated', item)
 }
 </script>
 

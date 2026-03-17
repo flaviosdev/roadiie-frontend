@@ -74,9 +74,13 @@ function onSetlistItemCreated(value: string) {
   createItem(props.setlistId, setlistItem).then(fetchItems)
 }
 
-function onUpdateSetlistItem(value: SetlistItem) {
+async function onUpdateSetlistItem(value: SetlistItem) {
   if (!value.id) return
-  updateItem(value.setlistId, value.id, value).then(fetchItems)
+  updateItem(value.setlistId, value.id, value).then((r) => {
+    fetchItems()
+    alert("deu certo")
+  })
+
 }
 </script>
 <template>
@@ -138,7 +142,7 @@ function onUpdateSetlistItem(value: SetlistItem) {
         :show="isFormOpen"
         v-if="selectedListitem"
         :setlistItem="selectedListitem"
-        @updateSetlistItem="onUpdateSetlistItem"
+        @updated="onUpdateSetlistItem"
         @close="closeForm"
       >
       </SetlistItemSidePanel>

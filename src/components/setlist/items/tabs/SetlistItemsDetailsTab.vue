@@ -1,3 +1,40 @@
+<script setup lang="ts">
+import type { SetlistItem } from '@/types/setlistItem'
+import { ref, watch } from 'vue'
+
+const props = defineProps<{
+  setlistItem: SetlistItem
+}>()
+
+const emit = defineEmits<{
+  (e: 'updated', item: SetlistItem): void
+  (e: 'rehearsed', item: SetlistItem): void
+}>()
+
+const editableItem = ref<SetlistItem>({ ...props.setlistItem })
+
+watch(
+  () => props.setlistItem,
+  (newItem) => {
+    editableItem.value = { ...newItem }
+  },
+)
+
+function registerRehearsal() {
+  editableItem.value.lastRehearsedAt = new Date().toISOString()
+
+  emit('rehearsed', editableItem.value)
+}
+
+function saveNotes() {
+  emit('updated', editableItem.value)
+}
+
+function formatDate(date: string): string {
+  return new Date(date).toLocaleDateString()
+}
+</script>
+
 <template>
   <div class="space-y-6">
     <div class="text-sm text-gray-500">
@@ -64,40 +101,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { SetlistItem } from '@/types/setlistItem'
-import { ref, watch } from 'vue'
-
-const props = defineProps<{
-  setlistItem: SetlistItem
-}>()
-
-const emit = defineEmits<{
-  (e: 'updated', item: SetlistItem): void
-  (e: 'rehearsed', item: SetlistItem): void
-}>()
-
-const editableItem = ref<SetlistItem>({ ...props.setlistItem })
-
-watch(
-  () => props.setlistItem,
-  (newItem) => {
-    editableItem.value = { ...newItem }
-  },
-)
-
-function registerRehearsal() {
-  editableItem.value.lastRehearsedAt = new Date().toISOString()
-
-  emit('rehearsed', editableItem.value)
-}
-
-function saveNotes() {
-  emit('updated', editableItem.value)
-}
-
-function formatDate(date: string): string {
-  return new Date(date).toLocaleDateString()
-}
-</script>
