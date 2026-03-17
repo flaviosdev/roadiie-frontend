@@ -11,10 +11,15 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'updated', setlistItem: SetlistItem): void
+  (e: 'deleted', setlistItem: SetlistItem): void
 }>()
 
 function onUpdate(item: SetlistItem) {
   emit('updated', item)
+}
+
+function onDeleted(item: SetlistItem) {
+  emit('deleted', item)
 }
 
 </script>
@@ -24,6 +29,7 @@ function onUpdate(item: SetlistItem) {
       v-if="setlistItem"
       :setlistItem="setlistItem"
       @updated="onUpdate"
+      @deleted="onDeleted"
     />
   </SidePanel>
 </template>

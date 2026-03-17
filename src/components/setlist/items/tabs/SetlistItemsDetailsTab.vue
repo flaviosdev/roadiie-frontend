@@ -9,6 +9,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'updated', item: SetlistItem): void
   (e: 'rehearsed', item: SetlistItem): void
+  (e: 'deleted', item: SetlistItem): void
 }>()
 
 /**
@@ -59,6 +60,12 @@ async function saveAll() {
   }
 }
 
+function deleteItem() {
+  const confirmed = confirm('Sure?')
+  if (!confirmed) return
+
+  emit('deleted', editableItem.value)
+}
 function cancelChanges() {
   editableItem.value = { ...originalItem.value }
   isDirty.value = false
@@ -178,6 +185,11 @@ const hasOrder = computed(() => editableItem.value.order != null)
 
     <!-- GLOBAL ACTION BAR -->
     <div class="flex justify-end gap-2 pt-4 border-t">
+      <!-- LEFT: DELETE -->
+      <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" @click="deleteItem">
+        Delete
+      </button>
+
       <button
         class="px-4 py-2 rounded transition"
         :class="

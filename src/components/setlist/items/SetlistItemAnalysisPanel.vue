@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'updated', item: SetlistItem): void
+  (e: 'deleted', item: SetlistItem): void
 }>()
 
 type TabKey = 'details'
@@ -21,6 +22,10 @@ function onUpdated(item: SetlistItem) {
 
 function onRehearsed(item: SetlistItem) {
   emit('updated', item)
+}
+
+function onDeleted(item: SetlistItem) {
+  emit('deleted', item)
 }
 </script>
 
@@ -55,6 +60,7 @@ function onRehearsed(item: SetlistItem) {
         :setlistItem="setlistItem"
         @rehearsed="onRehearsed"
         @updated="onUpdated"
+        @deleted="onDeleted"
       />
     </div>
   </div>

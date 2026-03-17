@@ -40,10 +40,15 @@ export function useSetlistItemApi() {
     await loadItems(setlistId)
   }
 
+  const deleteItem = async (setlistId: string, setlistItemId: string) => {
+    await http.delete<SetlistItem>(`/setlist/${setlistId}/items/${setlistItemId}`, {})
+  }
+
   return {
     page,
     loadItems,
     createItem,
     updateItem,
+    deleteItem,
   }
 }

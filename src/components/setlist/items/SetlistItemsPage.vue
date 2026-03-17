@@ -10,7 +10,7 @@ import CreateCard from '@/components/ui/CreateCard.vue'
 import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
 import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePanel.vue'
 
-const { page, loadItems, createItem, updateItem } = useSetlistItemApi()
+const { page, loadItems, createItem, updateItem, deleteItem } = useSetlistItemApi()
 const route = useRoute()
 
 const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
@@ -79,7 +79,12 @@ async function onUpdateSetlistItem(value: SetlistItem) {
   updateItem(value.setlistId, value.id, value).then((r) => {
     fetchItems()
   })
+}
 
+async function onDeleted(item: SetlistItem) {
+  if (!item.id) return
+  await deleteItem(item.setlistId, item.id)
+  fetchItems()
 }
 </script>
 <template>
@@ -148,6 +153,7 @@ async function onUpdateSetlistItem(value: SetlistItem) {
         v-if="selectedListitem"
         :setlistItem="selectedListitem"
         @updated="onUpdateSetlistItem"
+        @deleted="onDeleted"
         @close="closeForm"
       >
       </SetlistItemSidePanel>
