@@ -78,7 +78,6 @@ async function onUpdateSetlistItem(value: SetlistItem) {
   if (!value.id) return
   updateItem(value.setlistId, value.id, value).then((r) => {
     fetchItems()
-    alert("deu certo")
   })
 
 }
@@ -105,6 +104,12 @@ async function onUpdateSetlistItem(value: SetlistItem) {
             class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
           >
             Ensaio
+          </button>
+          <button
+            @click="setSort('order')"
+            class="px-3 py-1.5 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
+          >
+            Ordem
           </button>
         </div>
 

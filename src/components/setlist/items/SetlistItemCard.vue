@@ -35,6 +35,10 @@ function formatLastRehearsal(date?: string) {
   return d.toLocaleDateString()
 }
 
+function hasNote(note?: string) {
+  return note && note.trim().length > 0
+}
+
 function onUpdateSetlistItemStatus(status: string) {
   emit('updateSetlistItem', <SetlistItem>{
     id: props.setlistItem.id,
@@ -48,8 +52,26 @@ function onUpdateSetlistItemStatus(status: string) {
     <!-- body -->
 
     <template #meta>
-      <div class="text-lg font-bold text-gray-900 leading-tight">
-        {{ setlistItem.title ?? 'Tua mãe, aquela gorda' }}
+      <div class="flex gap-3 items-start">
+        <!-- ORDER -->
+        <div class="w-6 text-sm font-semibold text-gray-400 text-right pt-0.5">
+          {{ setlistItem.order ?? '-' }}
+        </div>
+
+        <!-- CONTENT -->
+        <div class="flex-1 space-y-1">
+          <!-- Title -->
+          <div class="text-lg font-bold text-gray-900 leading-tight">
+            {{ setlistItem.title ?? 'Untitled song' }}
+          </div>
+
+          <!-- User note -->
+          <div v-if="hasNote(setlistItem.userNote)" class="text-sm text-gray-500 line-clamp-2">
+            {{ setlistItem.userNote }}
+          </div>
+
+          <div v-else class="text-sm text-gray-300 italic">No notes yet</div>
+        </div>
       </div>
     </template>
 

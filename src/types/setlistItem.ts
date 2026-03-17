@@ -13,6 +13,7 @@ export interface SetlistItem {
 
   songId?: string
   title?: string
+  order: number
 
   userNote?: string
   status?: SetlistItemStatus
