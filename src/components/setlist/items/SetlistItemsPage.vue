@@ -9,6 +9,7 @@ import CardGrid from '@/components/ui/CardGrid.vue'
 import CreateCard from '@/components/ui/CreateCard.vue'
 import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
 import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePanel.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 
 const { page, loadItems, createItem, updateItem, deleteItem } = useSetlistItemApi()
 const route = useRoute()
@@ -19,6 +20,9 @@ const selectedListitemId = ref<string | null>(null)
 const isFormOpen = ref(false)
 
 const selectedListitem = computed(() => items.value.find((s) => s.id === selectedListitemId.value))
+
+const currentPage = computed(() => page.value?.number ?? 0)
+const totalPages = computed(() => page.value?.totalPages ?? 0)
 
 const props = defineProps<{
   setlistId: string
@@ -33,6 +37,10 @@ function closeForm() {
   isFormOpen.value = false
   selectedListitemId.value = null
 }
+
+function onPageChange(page: number) {
+  pageNumber.value = page
+}
 async function fetchItems() {
   console.log(props.setlistId)
   await loadItems(props.setlistId, {
@@ -45,9 +53,10 @@ async function fetchItems() {
 
 onMounted(fetchItems)
 
-watch([query, statusFilter], () => {
+watch([pageNumber, query, statusFilter, sort], fetchItems)
+
+watch([query, statusFilter, sort], () => {
   pageNumber.value = 0
-  fetchItems()
 })
 
 function selectSetlistItem(id: string) {
@@ -84,7 +93,7 @@ async function onUpdateSetlistItem(value: SetlistItem) {
 async function onDeleted(item: SetlistItem) {
   if (!item.id) return
   await deleteItem(item.setlistId, item.id)
-  fetchItems()
+  await fetchItems()
 }
 </script>
 <template>
@@ -160,5 +169,12 @@ async function onDeleted(item: SetlistItem) {
 
       <div v-if="items.length === 0">Empty list</div>
     </CardGrid>
+
+    <Pagination
+      v-if="totalPages > 1"
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @change="onPageChange"
+    />
   </AppPage>
 </template>
