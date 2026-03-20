@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { SetlistItem } from '@/types/setlistItem'
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
+import { useToast } from '@/composables/useToast.ts'
+
+const toast = useToast()
 
 const props = defineProps<{
   setlistItem: SetlistItem
@@ -12,18 +15,14 @@ const emit = defineEmits<{
   (e: 'deleted', item: SetlistItem): void
 }>()
 
-/**
- * Internal state
- */
 const editableItem = ref<SetlistItem>({ ...props.setlistItem })
 const originalItem = ref<SetlistItem>({ ...props.setlistItem })
 
 const isDirty = ref(false)
 const isSaving = ref(false)
+const isConfirmingDelete = ref(false)
+let deleteTimeout: ReturnType<typeof setTimeout> | null = null
 
-/**
- * Sync when prop changes
- */
 watch(
   () => props.setlistItem,
   (newItem) => {
@@ -61,11 +60,34 @@ async function saveAll() {
 }
 
 function deleteItem() {
-  const confirmed = confirm('Sure?')
-  if (!confirmed) return
+  if (isConfirmingDelete.value) {
+    emit('deleted', editableItem.value)
+    resetDeleteState()
+    return
+  }
 
-  emit('deleted', editableItem.value)
+  isConfirmingDelete.value = true
+
+  deleteTimeout = setTimeout(() => {
+    resetDeleteState()
+  }, 3000)
 }
+
+function resetDeleteState() {
+  isConfirmingDelete.value = false
+
+  if (deleteTimeout) {
+    clearTimeout(deleteTimeout)
+    deleteTimeout = null
+  }
+}
+
+onUnmounted(() => {
+  if (deleteTimeout) {
+    clearTimeout(deleteTimeout)
+  }
+})
+
 function cancelChanges() {
   editableItem.value = { ...originalItem.value }
   isDirty.value = false
@@ -92,86 +114,52 @@ const hasOrder = computed(() => editableItem.value.order != null)
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- Info -->
-    <div class="text-sm text-gray-500">
-      Manage practice progress and personal notes for this song.
-    </div>
-
-    <!-- Basic Info -->
-    <div class="bg-gray-50 p-4 rounded space-y-4">
-      <span v-if="isDirty" class="text-xs text-yellow-600"> You have unsaved changes </span>
-      <!-- Title -->
+  <div class="space-y-2">
+    <div class="flex justify-between items-start">
       <div>
-        <div class="text-xs text-gray-500">Title</div>
-        <div class="font-semibold text-lg">
+        <h2 class="text-xl font-semibold">
           {{ editableItem.title || 'Untitled song' }}
-        </div>
-      </div>
-
-      <!-- Status -->
-      <div>
-        <div class="text-xs text-gray-500">Status</div>
-        <div class="font-medium">
+        </h2>
+        <p class="text-sm text-gray-500">
           {{ editableItem.status || 'BACKLOG' }}
-        </div>
+        </p>
       </div>
 
-      <!-- Last rehearsal -->
-      <div v-if="editableItem.lastRehearsedAt">
-        <div class="text-xs text-gray-500">Last Rehearsed</div>
-        <div class="font-medium">
+      <span v-if="isDirty" class="text-xs text-yellow-600"> Unsaved changes </span>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium">Setlist Order</label>
+
+      <div class="flex items-center gap-2">
+        <button @click="editableItem.order = Math.max(1, (editableItem.order || 1) - 1)">-</button>
+
+        <input
+          v-model.number="editableItem.order"
+          type="number"
+          class="w-20 text-center border rounded p-2"
+        />
+
+        <button @click="editableItem.order = (editableItem.order || 0) + 1">+</button>
+      </div>
+
+      <p class="text-xs text-gray-500">Lower numbers appear first</p>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium">Rehearsal</label>
+
+      <div class="flex items-center gap-3">
+        <button class="px-3 py-1.5 bg-blue-600 text-white rounded" @click="registerRehearsal">
+          Register
+        </button>
+
+        <span v-if="editableItem.lastRehearsedAt" class="text-sm text-gray-500">
           {{ formatDate(editableItem.lastRehearsedAt) }}
-        </div>
-      </div>
-
-      <!-- ORDER (UX melhorado) -->
-      <div>
-        <div class="text-xs text-gray-500">Setlist Order</div>
-
-        <div class="flex items-center gap-2 mt-1">
-          <button
-            class="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            @click="editableItem.order = Math.max(1, (editableItem.order || 1) - 1)"
-          >
-            -
-          </button>
-
-          <input
-            v-model.number="editableItem.order"
-            type="number"
-            min="1"
-            class="w-20 text-center border rounded p-2"
-            placeholder="-"
-          />
-
-          <button
-            class="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            @click="editableItem.order = (editableItem.order || 0) + 1"
-          >
-            +
-          </button>
-        </div>
-
-        <p class="text-xs text-gray-500 mt-1">Lower numbers appear first in the setlist</p>
+        </span>
       </div>
     </div>
 
-    <!-- Rehearsal -->
-    <div class="flex items-center gap-3">
-      <button
-        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        @click="registerRehearsal"
-      >
-        Register rehearsal
-      </button>
-
-      <span v-if="editableItem.lastRehearsedAt" class="text-sm text-gray-500">
-        Last rehearsal: {{ formatDate(editableItem.lastRehearsedAt) }}
-      </span>
-    </div>
-
-    <!-- Notes -->
     <div class="space-y-2">
       <label class="text-sm font-medium">Notes</label>
 
@@ -179,36 +167,39 @@ const hasOrder = computed(() => editableItem.value.order != null)
         v-model="editableItem.userNote"
         rows="5"
         class="w-full border rounded p-2 text-sm"
-        placeholder="Write practice notes, reminders, ideas..."
       />
     </div>
 
-    <!-- GLOBAL ACTION BAR -->
-    <div class="flex justify-end gap-2 pt-4 border-t">
-      <!-- LEFT: DELETE -->
-      <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" @click="deleteItem">
-        Delete
-      </button>
-
+    <div class="flex justify-between items-center pt-4 border-t">
       <button
-        class="px-4 py-2 rounded transition"
+        @click="deleteItem"
+        class="px-4 py-2 rounded text-sm transition"
         :class="
-          isDirty ? 'bg-gray-200 hover:bg-gray-300' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          isConfirmingDelete
+            ? 'bg-red-600 text-white hover:bg-red-700'
+            : 'text-red-600 hover:underline'
         "
-        :disabled="!isDirty"
-        @click="cancelChanges"
       >
-        Cancel
+        {{ isConfirmingDelete ? 'U SURE?' : 'Delete' }}
       </button>
 
-      <button
-        class="px-4 py-2 rounded text-white transition"
-        :class="isDirty ? 'bg-green-600 hover:bg-green-700' : 'bg-green-300 cursor-not-allowed'"
-        :disabled="!isDirty || isSaving"
-        @click="saveAll"
-      >
-        {{ isSaving ? 'Saving...' : 'Save changes' }}
-      </button>
+      <div class="flex gap-2">
+        <button
+          :disabled="!isDirty"
+          @click="cancelChanges"
+          class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Cancel
+        </button>
+
+        <button
+          :disabled="!isDirty || isSaving"
+          @click="saveAll"
+          class="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+        >
+          {{ isSaving ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
