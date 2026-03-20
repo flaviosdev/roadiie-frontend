@@ -15,7 +15,7 @@ export function useSetlistItemApi() {
   }
 
   const loadItems = async (setlistId: string, params: LoadParams = {}) => {
-    const { page: pageNumber = 0, size = 3, sort = 'order,asc', query, status } = params
+    const { page: pageNumber = 0, size = 10, sort = 'order,asc', query, status } = params
 
     const { data } = await http.get<Page<SetlistItem>>(`/setlist/${setlistId}/items`, {
       params: {
