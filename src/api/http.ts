@@ -8,7 +8,9 @@ import {
   saveTokens,
 } from '@/auth/tokenStorage.ts'
 import { setGlobalError } from '@/api/globalError.ts'
+import { useToast } from '@/composables/useToast.ts'
 
+const toast = useToast()
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 500000,
@@ -64,7 +66,7 @@ http.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (!error.response) {
-      setGlobalError('Server down!')
+      toast.error('Server down!')
       console.error(error.message)
 
       return Promise.reject({

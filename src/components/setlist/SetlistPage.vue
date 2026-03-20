@@ -7,7 +7,9 @@ import CardGrid from '@/components/ui/CardGrid.vue'
 import SetlistCard from '@/components/setlist/SetlistCard.vue'
 import router from '@/router'
 import type { Setlist } from '@/types/setlist.ts'
+import { useToast } from '@/composables/useToast.ts'
 
+const toast = useToast()
 const { page, loadSetlists, createSetlist } = useSetlistApi()
 
 const currentPage = ref(0)
@@ -35,7 +37,7 @@ function onCreateSetlist(title: string) {
   createSetlist(<Setlist>{
     title
   })
-  alert('Created!')
+  toast.success(`Setlist item ${title} was Created!`)
 }
 
 function onSelectSetlist(setlistId: string) {

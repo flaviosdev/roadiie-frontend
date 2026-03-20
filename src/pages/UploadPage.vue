@@ -10,7 +10,9 @@ import AppPage from '@/components/ui/AppPage.vue'
 import CardGrid from '@/components/ui/CardGrid.vue'
 import CreateCard from '@/components/ui/CreateCard.vue'
 import UploadCard from '@/components/upload/UploadCard.vue'
+import { useToast } from '@/composables/useToast.ts'
 
+const toast = useToast()
 const { uploadList, loadUploadList, deleteUpload } = useUploadApi()
 
 const { query, filteredList } = useListFilter(uploadList, (upload, q) =>
@@ -59,12 +61,14 @@ function onUpdatedUpload(updatedUpload: Upload) {
   if (index === -1) return
   uploadList.value[index] = { ...updatedUpload }
   selectedId.value = updatedUpload.id
-  alert('Upload was updated')
+  toast.success('Upload was updated')
+  closeForm()
 }
 
 async function onDeleteUpload(upload: Upload) {
   if (!upload.id) return
   await deleteUpload(upload.id)
+  toast.success(`Upload ${upload.title} was deleted`)
 }
 
 const sortByDate = () => setSort('date')

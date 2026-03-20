@@ -4,6 +4,7 @@ import { useSongApi } from '@/composables/useSongApi.ts'
 import { onMounted } from 'vue'
 import { globalError } from '@/api/globalError.ts'
 import { useRoute } from 'vue-router'
+import ToastContainer from '@/components/ui/ToastContainer.vue'
 
 const { loadSongList } = useSongApi()
 const route = useRoute()
@@ -15,6 +16,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <ToastContainer />
   <div v-if="globalError" class="global-error">
     {{ globalError }}
   </div>

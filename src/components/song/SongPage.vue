@@ -11,7 +11,9 @@ import CardGrid from '@/components/ui/CardGrid.vue'
 import SongCard from '@/components/song/SongCard.vue'
 import CreateCard from '@/components/ui/CreateCard.vue'
 import AppPage from '@/components/ui/AppPage.vue'
+import { useToast } from '@/composables/useToast.ts'
 
+const toast = useToast()
 const { songList, loadSongList, createSong, updateSong, patchSong, loading, error, deleteSong } =
   useSongApi()
 
@@ -75,7 +77,7 @@ async function onPatchedSong(patchedSong: Song) {
   if (index === -1) return
 
   songList.value[index] = returnedSong
-  alert('Song patched!')
+  toast.success('Song patched!')
 }
 
 async function onSongCreated(title: string) {
@@ -84,7 +86,7 @@ async function onSongCreated(title: string) {
   }
 
   await createSong(newSong)
-  alert('Pronto!')
+  toast.success('Pronto!')
 }
 </script>
 

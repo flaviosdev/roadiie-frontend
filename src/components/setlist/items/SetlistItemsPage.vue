@@ -10,9 +10,10 @@ import CreateCard from '@/components/ui/CreateCard.vue'
 import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
 import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePanel.vue'
 import Pagination from '@/components/ui/Pagination.vue'
+import { useToast } from '@/composables/useToast.ts'
 
+const toast = useToast()
 const { page, loadItems, createItem, updateItem, deleteItem } = useSetlistItemApi()
-const route = useRoute()
 
 const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
 
@@ -80,20 +81,27 @@ function onSetlistItemCreated(value: string) {
     setlistId: props.setlistId,
   } as SetlistItem
 
-  createItem(props.setlistId, setlistItem).then(fetchItems)
+  createItem(props.setlistId, setlistItem).then(() => {
+    toast.success(`Set list item ${setlistItem.title} created successfully.`)
+    fetchItems()
+  })
 }
 
 async function onUpdateSetlistItem(value: SetlistItem) {
   if (!value.id) return
   updateItem(value.setlistId, value.id, value).then((r) => {
+    toast.success(`Set list item ${value.title} was updated`)
     fetchItems()
+    closeForm()
   })
 }
 
 async function onDeleted(item: SetlistItem) {
   if (!item.id) return
-  await deleteItem(item.setlistId, item.id)
-  await fetchItems()
+  await deleteItem(item.setlistId, item.id).then(() => {
+    toast.success(`Set list item ${item.title} was deleted`)
+    fetchItems()
+  })
 }
 </script>
 <template>
@@ -164,8 +172,7 @@ async function onDeleted(item: SetlistItem) {
         @updated="onUpdateSetlistItem"
         @deleted="onDeleted"
         @close="closeForm"
-      >
-      </SetlistItemSidePanel>
+      />
 
       <div v-if="items.length === 0">Empty list</div>
     </CardGrid>
