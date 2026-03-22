@@ -44,11 +44,17 @@ export function useSetlistItemApi() {
     await http.delete<SetlistItem>(`/setlist/${setlistId}/items/${setlistItemId}`, {})
   }
 
+  const rehearseItem = async (setlistId: string, setlistItemId: string) => {
+    await http.post(`/setlist/${setlistId}/items/${setlistItemId}/rehearse`)
+    await loadItems(setlistId)
+  }
+
   return {
     page,
     loadItems,
     createItem,
     updateItem,
+    rehearseItem,
     deleteItem,
   }
 }

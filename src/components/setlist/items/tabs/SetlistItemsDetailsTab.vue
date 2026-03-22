@@ -23,6 +23,15 @@ const isSaving = ref(false)
 const isConfirmingDelete = ref(false)
 let deleteTimeout: ReturnType<typeof setTimeout> | null = null
 
+const daysSinceLastRehearsal = computed(() => {
+  if (!editableItem.value.lastRehearsedAt) return null
+
+  const last = new Date(editableItem.value.lastRehearsedAt)
+  const now = new Date()
+
+  return Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24))
+})
+
 watch(
   () => props.setlistItem,
   (newItem) => {
@@ -32,9 +41,6 @@ watch(
   },
 )
 
-/**
- * Dirty tracking (deep)
- */
 watch(
   editableItem,
   () => {
@@ -43,9 +49,6 @@ watch(
   { deep: true },
 )
 
-/**
- * Actions
- */
 async function saveAll() {
   if (!isDirty.value) return
 
@@ -80,6 +83,12 @@ function resetDeleteState() {
     clearTimeout(deleteTimeout)
     deleteTimeout = null
   }
+}
+
+function getDotClass(index: number) {
+  if (index === 0) return 'bg-blue-600'
+  if (index < 3) return 'bg-blue-400'
+  return 'bg-gray-300'
 }
 
 onUnmounted(() => {
@@ -154,9 +163,17 @@ const hasOrder = computed(() => editableItem.value.order != null)
           Register
         </button>
 
-        <span v-if="editableItem.lastRehearsedAt" class="text-sm text-gray-500">
+        <span v-if="editableItem.lastRehearsedAt" class="text-xs text-gray-500">
           {{ formatDate(editableItem.lastRehearsedAt) }}
+          • {{ daysSinceLastRehearsal === 0 ? 'today' : `${daysSinceLastRehearsal}d ago` }}
         </span>
+      </div>
+      <div class="flex gap-1">
+        <div
+          v-for="date in [...(editableItem.rehearses || [])].slice(-7).reverse()"
+          :key="date"
+          class="w-2 h-2 rounded-full bg-blue-500"
+        />
       </div>
     </div>
 

@@ -20,4 +20,5 @@ export interface SetlistItem {
 
   createdAt?: string
   lastRehearsedAt?: string
+  rehearses?: string[]
 }

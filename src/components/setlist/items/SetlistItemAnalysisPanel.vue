@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'updated', item: SetlistItem): void
+  (e: 'rehearsed', item: SetlistItem): void
   (e: 'deleted', item: SetlistItem): void
 }>()
 
@@ -21,7 +22,7 @@ function onUpdated(item: SetlistItem) {
 }
 
 function onRehearsed(item: SetlistItem) {
-  emit('updated', item)
+  emit('rehearsed', item)
 }
 
 function onDeleted(item: SetlistItem) {

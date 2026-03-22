@@ -13,7 +13,7 @@ import Pagination from '@/components/ui/Pagination.vue'
 import { useToast } from '@/composables/useToast.ts'
 
 const toast = useToast()
-const { page, loadItems, createItem, updateItem, deleteItem } = useSetlistItemApi()
+const { page, loadItems, createItem, updateItem, rehearseItem, deleteItem } = useSetlistItemApi()
 
 const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
 
@@ -42,6 +42,7 @@ function closeForm() {
 function onPageChange(page: number) {
   pageNumber.value = page
 }
+
 async function fetchItems() {
   console.log(props.setlistId)
   await loadItems(props.setlistId, {
@@ -94,6 +95,12 @@ async function onUpdateSetlistItem(value: SetlistItem) {
     fetchItems()
     closeForm()
   })
+}
+
+async function onRehearsedSetlistItem(value: SetlistItem) {
+  if (!value.id) return
+  await rehearseItem(value.setlistId, value.id)
+  toast.success(`Set list item ${value.title} was reheared`)
 }
 
 async function onDeleted(item: SetlistItem) {
@@ -162,6 +169,7 @@ async function onDeleted(item: SetlistItem) {
         :key="setlistItem.id"
         :setlistItem="setlistItem"
         @updateSetlistItem="onUpdateSetlistItem"
+        @rehearsedSetlistItem="onRehearsedSetlistItem"
         @selectSetlistItem="selectSetlistItem"
       />
 
@@ -170,6 +178,7 @@ async function onDeleted(item: SetlistItem) {
         v-if="selectedListitem"
         :setlistItem="selectedListitem"
         @updated="onUpdateSetlistItem"
+        @rehearsed="onRehearsedSetlistItem"
         @deleted="onDeleted"
         @close="closeForm"
       />
