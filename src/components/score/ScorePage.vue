@@ -5,27 +5,14 @@ import { useListSorting } from '@/composables/useListSorting'
 import { useSongScoreApi } from '@/composables/useSongScoreApi.ts'
 import type { SongScore } from '@/types/songScore.ts'
 
-const { scoreList, loadScore, generateScores: generateScoreList } = useSongScoreApi()
-
-const loading = ref(false)
+const { scoreList, loadScore, generateScores: generateScoreList, loading } = useSongScoreApi()
 
 onMounted(async () => {
-  loading.value = true
-  try {
-    await loadScore()
-  } finally {
-    loading.value = false
-  }
+  await loadScore()
 })
 
 async function generateScores() {
-  loading.value = true
-  try {
-    await generateScoreList()
-    await loadScore()
-  } finally {
-    loading.value = false
-  }
+  await loadScore()
 }
 
 const { query, filteredList } = useListFilter(scoreList, (song, q) =>
@@ -33,21 +20,14 @@ const { query, filteredList } = useListFilter(scoreList, (song, q) =>
 )
 
 const comparators = {
-  title: (a: SongScore, b: SongScore) =>
-    a.songName.localeCompare(b.songName, 'pt', { sensitivity: 'base' }),
+  title: (a, b) => a.songName.localeCompare(b.songName),
 
-  popularityScore: (a: SongScore, b: SongScore) => b.popularityScore - a.popularityScore,
-
-  growthScore: (a: SongScore, b: SongScore) => b.growthScore - a.growthScore,
-
-  engagementScore: (a: SongScore, b: SongScore) => b.engagementScore - a.engagementScore,
-
-  consistencyScore: (a: SongScore, b: SongScore) => b.consistencyScore - a.consistencyScore,
-
-  finalScore: (a: SongScore, b: SongScore) => b.finalScore - a.finalScore,
+  quality: (a, b) => (b.quality ?? 0) - (a.quality ?? 0),
+  performance: (a, b) => (b.performance ?? 0) - (a.performance ?? 0),
+  momentum: (a, b) => (b.momentum ?? 0) - (a.momentum ?? 0),
 }
 
-const { sortedList, setSort } = useListSorting(filteredList, comparators)
+const { sortedList, setSort, sortKey } = useListSorting(filteredList, comparators)
 </script>
 
 <template>
@@ -59,44 +39,43 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
       <div class="flex flex-wrap gap-2">
         <button
           @click="setSort('title')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
+          :class="[
+            'px-3 py-1.5 text-sm rounded-md border',
+            sortKey === 'title' ? 'bg-gray-900 text-white' : 'hover:bg-gray-100',
+          ]"
         >
           Title
         </button>
         <button
-          @click="setSort('finalScore')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
+          @click="setSort('quality')"
+          :class="[
+            'px-3 py-1.5 text-sm rounded-md border',
+            sortKey === 'quality' ? 'bg-gray-900 text-white' : 'hover:bg-gray-100',
+          ]"
         >
-          Final
+          Quality
         </button>
         <button
-          @click="setSort('popularityScore')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
+          @click="setSort('performance')"
+          :class="[
+            'px-3 py-1.5 text-sm rounded-md border',
+            sortKey === 'performance' ? 'bg-gray-900 text-white' : 'hover:bg-gray-100',
+          ]"
         >
-          Popularity
+          Performance
         </button>
         <button
-          @click="setSort('growthScore')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
+          @click="setSort('momentum')"
+          :class="[
+            'px-3 py-1.5 text-sm rounded-md border',
+            sortKey === 'momentum' ? 'bg-gray-900 text-white' : 'hover:bg-gray-100',
+          ]"
         >
-          Growth
-        </button>
-        <button
-          @click="setSort('engagementScore')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
-        >
-          Engagement
-        </button>
-        <button
-          @click="setSort('consistencyScore')"
-          class="px-3 py-1.5 text-sm rounded-md border hover:bg-gray-100"
-        >
-          Consistency
+          Momentum
         </button>
       </div>
 
       <div class="flex items-center gap-2">
-
         <button
           @click="generateScores"
           class="px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-800"
@@ -129,21 +108,32 @@ const { sortedList, setSort } = useListSorting(filteredList, comparators)
     <div v-else class="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
       <div
         v-for="song in sortedList"
-        :key="song.id"
+        :key="song.songId"
         class="bg-white rounded-xl shadow-sm border border-gray-200 p-4"
       >
         <div class="text-lg font-bold text-gray-900">
           {{ song.songName }}
         </div>
 
-        <div class="mt-4 space-y-2 text-sm text-gray-700">
-          <div>
-            🏆 Final: <strong>{{ song.finalScore?.toFixed(2) }}</strong>
-          </div>
-          <div>🔥 Popularity: {{ song.popularityScore.toFixed(2) }}</div>
-          <div>📈 Growth: {{ song.growthScore.toFixed(2) }}</div>
-          <div>💬 Engagement: {{ song.engagementScore.toFixed(2) }}</div>
-          <div>📊 Consistency: {{ song.consistencyScore.toFixed(2) }}</div>
+        <div>
+          🎯 Quality:
+          <strong :class="{ 'text-black font-bold': sortKey === 'quality' }">
+            {{ song.quality?.toFixed(2) ?? '-' }}
+          </strong>
+        </div>
+
+        <div>
+          🚀 Performance:
+          <strong :class="{ 'text-black font-bold': sortKey === 'performance' }">
+            {{ song.performance?.toFixed(2) ?? '-' }}
+          </strong>
+        </div>
+
+        <div>
+          📈 Momentum:
+          <strong :class="{ 'text-black font-bold': sortKey === 'momentum' }">
+            {{ song.momentum?.toFixed(2) ?? '-' }}
+          </strong>
         </div>
       </div>
     </div>

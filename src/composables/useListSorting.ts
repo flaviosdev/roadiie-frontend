@@ -6,6 +6,7 @@ export function useListSorting<T>(
 ) {
   // @ts-ignore
   const sortKey = ref<string>(Object.keys(comparators)[0])
+
   const ascending = ref(false)
 
   const sortedList = computed(() => {

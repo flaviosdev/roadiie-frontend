@@ -1,10 +1,11 @@
 import { ref } from 'vue'
 import { http } from '@/api/http'
-import type { SongScore } from '@/types/songScore.ts'
+import type { SongScoreView } from '@/types/songScoreView.ts'
 
 
 
-const scoreList = ref<SongScore[] | null>([])
+const scoreList = ref<SongScoreView[]>([])
+
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -16,7 +17,7 @@ export function useSongScoreApi() {
 
     try {
       const { data } = await http.get(`/score`)
-      scoreList.value = data.content
+      scoreList.value = data
     } catch (error: any) {
       error.value = error?.message ?? 'Failed to load score'
       console.error('useSongScoreApi.score error', error)
@@ -35,7 +36,7 @@ export function useSongScoreApi() {
   }
 
   const resetScore = () => {
-    scoreList.value = null
+    scoreList.value = []
     error.value = null
     loading.value = false
   }
