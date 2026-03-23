@@ -57,7 +57,6 @@ function selectUpload(id: string) {
 }
 
 async function loginToYoutube() {
-if (!authUrl.value) return
   await getAuthUrl()
   window.open(authUrl.value, '_blank')
 }
