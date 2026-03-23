@@ -11,9 +11,11 @@ import CardGrid from '@/components/ui/CardGrid.vue'
 import CreateCard from '@/components/ui/CreateCard.vue'
 import UploadCard from '@/components/upload/UploadCard.vue'
 import { useToast } from '@/composables/useToast.ts'
+import { useYoutubeAuthApi } from '@/composables/useYoutubeAuthApi.ts'
 
 const toast = useToast()
 const { uploadList, loadUploadList, deleteUpload } = useUploadApi()
+const { getAuthUrl, authUrl } = useYoutubeAuthApi()
 
 const { query, filteredList } = useListFilter(uploadList, (upload, q) =>
   upload.title.toLowerCase().includes(q.toLowerCase()),
@@ -54,7 +56,11 @@ function selectUpload(id: string) {
   isFormOpen.value = true
 }
 
-function loginToYoutube() {}
+async function loginToYoutube() {
+if (!authUrl.value) return
+  await getAuthUrl()
+  window.open(authUrl.value, '_blank')
+}
 
 function onUpdatedUpload(updatedUpload: Upload) {
   const index = uploadList.value.findIndex((u) => u.id === updatedUpload.id)
@@ -121,7 +127,7 @@ const sortByAverageViews = () => setSort('avgViews')
             @click="loginToYoutube"
             class="px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-800"
           >
-            Generate
+            Load Uploads
           </button>
         </div>
 
