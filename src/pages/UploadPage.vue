@@ -69,6 +69,7 @@ async function onDeleteUpload(upload: Upload) {
   if (!upload.id) return
   await deleteUpload(upload.id)
   toast.success(`Upload ${upload.title} was deleted`)
+  closeForm()
 }
 
 const sortByDate = () => setSort('date')
