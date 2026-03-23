@@ -12,6 +12,7 @@ onMounted(async () => {
 })
 
 async function generateScores() {
+  await generateScoreList()
   await loadScore()
 }
 
