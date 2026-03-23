@@ -26,7 +26,10 @@ function formatLastRehearsal(date?: string) {
   const d = new Date(date)
   const now = new Date()
 
-  const diff = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
+  // normaliza para meia-noite local
+  const startOfDay = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate())
+
+  const diff = (startOfDay(now).getTime() - startOfDay(d).getTime()) / (1000 * 60 * 60 * 24)
 
   if (diff === 0) return 'Today'
   if (diff === 1) return 'Yesterday'

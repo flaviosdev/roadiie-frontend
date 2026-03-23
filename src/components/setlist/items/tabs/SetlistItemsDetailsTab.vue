@@ -29,7 +29,11 @@ const daysSinceLastRehearsal = computed(() => {
   const last = new Date(editableItem.value.lastRehearsedAt)
   const now = new Date()
 
-  return Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24))
+  const startOfDay = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate())
+
+  return Math.floor(
+    (startOfDay(now).getTime() - startOfDay(last).getTime()) / (1000 * 60 * 60 * 24),
+  )
 })
 
 watch(
