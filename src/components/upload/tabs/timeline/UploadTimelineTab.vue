@@ -52,7 +52,7 @@ const viewsChart = computed(() => [
     borderColor: '#7c3aed', // purple
     backgroundColor: 'rgba(124, 58, 237, .15)',
     tension: 0.3,
-    borderDash: [6, 4], // visually differentiate derivative metric
+    borderDash: [6, 4],
   },
   {
     label: 'Likes',

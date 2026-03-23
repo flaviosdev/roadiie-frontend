@@ -56,7 +56,6 @@ function compactNumber(n: number): string {
         <span>👁 {{ compactNumber(upload.summary?.totalViews) }}</span>
         <span>👍 {{ compactNumber(upload.summary?.totalLikes) }}</span>
         <span>💬 {{ compactNumber(upload.summary?.totalComments) }}</span>
-        <span>📈 {{ compactNumber(upload.summary?.totalViewsPerDay) }}</span>
         <span>{{ upload.songId ? '🎶' : '' }}</span>
       </div>
     </template>

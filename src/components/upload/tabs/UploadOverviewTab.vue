@@ -44,21 +44,9 @@ onMounted(()=> console.log(props.upload.summary))
             {{ upload.summary.totalComments }}
           </div>
         </div>
-
-        <div class="bg-gray-50 p-3 rounded">
-          <div class="text-xs text-gray-500">Views per day</div>
-          <div class="text-lg font-semibold">
-            {{ upload.summary.totalViewsPerDay }}
-          </div>
-        </div>
       </div>
     </div>
 
     <UploadTimelineTab :upload="upload" />
-    <!-- Placeholder for insights -->
-    <div class="bg-blue-50 border border-blue-200 p-4 rounded">
-      <div class="text-sm font-medium text-blue-800">Insights</div>
-      <p class="text-sm text-blue-700 mt-1">Performance summary and trends will appear here.</p>
-    </div>
   </div>
 </template>
