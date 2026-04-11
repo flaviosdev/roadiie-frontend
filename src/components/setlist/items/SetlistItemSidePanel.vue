@@ -2,10 +2,13 @@
 import SidePanel from '@/components/ui/SidePanel.vue'
 import type { SetlistItem } from '@/types/setlistItem.ts'
 import SetlistItemAnalysisPanel from '@/components/setlist/items/SetlistItemAnalysisPanel.vue'
+import type { Page } from '@/types/page.ts'
+import type { Setlist } from '@/types/setlist.ts'
 
 defineProps<{
   show: boolean
   setlistItem: SetlistItem | null
+  setlistPage: Page<Setlist> | null
 }>()
 
 const emit = defineEmits<{
@@ -30,8 +33,9 @@ function onDeleted(item: SetlistItem) {
 <template>
   <SidePanel :show="show" @close="$emit('close')">
     <SetlistItemAnalysisPanel
-      v-if="setlistItem"
+      v-if="setlistItem && setlistPage"
       :setlistItem="setlistItem"
+      :setlistPage="setlistPage"
       @updated="onUpdate"
       @rehearsed="onRehearsed"
       @deleted="onDeleted"

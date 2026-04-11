@@ -16,25 +16,15 @@ const {
   resetMetrics: viewsPerDayResetMetrics,
 } = useMetricApi(props.upload.id, 'VIEWS_PER_DAY_METRIC')
 
-const {
-  metrics: growthMetrics,
-  errorMetrics: growthErrorMetrics,
-  loadMetrics: growthLoadMetrics,
-  resetMetrics: growthResetMetrics,
-} = useMetricApi(props.upload.id, 'GROWTH_METRIC')
-
 const labels = computed(() => snapshots.value.map((s) => s.date))
-const growthMetricLabels = computed(() => growthMetrics.value.map((s) => s.date))
 
 onMounted(() => {
   loadSnapshots()
-  growthLoadMetrics()
   viewsPerDayLoadMetrics()
 })
 
 onUnmounted(() => {
   reset()
-  growthResetMetrics()
   viewsPerDayResetMetrics()
 })
 

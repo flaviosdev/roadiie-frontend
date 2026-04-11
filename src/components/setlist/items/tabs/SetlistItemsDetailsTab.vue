@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { SetlistItem } from '@/types/setlistItem'
 import { ref, watch, computed, onUnmounted } from 'vue'
-import { useToast } from '@/composables/useToast.ts'
-
-const toast = useToast()
+import type { Page } from '@/types/page.ts'
+import type { Setlist } from '@/types/setlist.ts'
 
 const props = defineProps<{
   setlistItem: SetlistItem
+  setlistPage: Page<Setlist>
 }>()
 
 const emit = defineEmits<{
@@ -139,6 +139,18 @@ const hasOrder = computed(() => editableItem.value.order != null)
       </div>
 
       <span v-if="isDirty" class="text-xs text-yellow-600"> Unsaved changes </span>
+    </div>
+
+    <div class="space-y-2">
+      <label class="text-sm font-medium">Setlist</label>
+
+      <select v-model="editableItem.setlistId" class="w-full border rounded p-2 text-sm">
+        <option disabled value="">Select a setlist</option>
+
+        <option v-for="setlist in setlistPage?.content" :key="setlist.id" :value="setlist.id">
+          {{ setlist.title }}
+        </option>
+      </select>
     </div>
 
     <div class="space-y-2">

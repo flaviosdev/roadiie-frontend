@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { http } from '@/api/http'
 import type { UploadMetricsSnapshot } from '@/types/UploadMetricsSnapshot.ts'
 
-export function useUploadMetricsApi(uploadId: string) {
+export function useUploadMetricsApi(uploadId: string, size: number = 14) {
   const snapshots = ref<UploadMetricsSnapshot[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -12,7 +12,7 @@ export function useUploadMetricsApi(uploadId: string) {
     error.value = null
 
     try {
-      const { data } = await http.get(`/upload/${uploadId}/metrics/snapshots?page=0&size=14&sort=date,desc`)
+      const { data } = await http.get(`/upload/${uploadId}/metrics/snapshots?page=0&size=${size}&sort=date,desc`)
       snapshots.value = data.reverse()
     } catch (err: any) {
       error.value =

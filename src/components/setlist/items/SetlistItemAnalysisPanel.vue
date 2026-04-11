@@ -2,9 +2,12 @@
 import type { SetlistItem } from '@/types/setlistItem.ts'
 import { ref } from 'vue'
 import SetlistItemsDetailsTab from '@/components/setlist/items/tabs/SetlistItemsDetailsTab.vue'
+import type { Setlist } from '@/types/setlist.ts'
+import type { Page } from '@/types/page.ts'
 
 const props = defineProps<{
   setlistItem: SetlistItem
+  setlistPage: Page<Setlist>
 }>()
 
 const emit = defineEmits<{
@@ -36,7 +39,7 @@ function onDeleted(item: SetlistItem) {
       <h2 class="text-lg font-semibold line-clamp-2">
         {{ setlistItem.title }}
       </h2>
-      <div class="text-sm text-gray-500">BLABLABLA</div>
+      <div class="text-sm text-gray-500">{{ setlistItem.id }}</div>
     </div>
 
     <div class="flex gap-2 border-b mb-4">
@@ -59,6 +62,7 @@ function onDeleted(item: SetlistItem) {
       <SetlistItemsDetailsTab
         v-if="activeTab === 'details'"
         :setlistItem="setlistItem"
+        :setlistPage="setlistPage"
         @rehearsed="onRehearsed"
         @updated="onUpdated"
         @deleted="onDeleted"

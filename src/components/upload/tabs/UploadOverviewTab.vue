@@ -47,6 +47,5 @@ onMounted(()=> console.log(props.upload.summary))
       </div>
     </div>
 
-    <UploadTimelineTab :upload="upload" />
   </div>
 </template>

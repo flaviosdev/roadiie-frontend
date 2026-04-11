@@ -11,9 +11,11 @@ import SetlistItemCard from '@/components/setlist/items/SetlistItemCard.vue'
 import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePanel.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import { useToast } from '@/composables/useToast.ts'
+import { useSetlistApi } from '@/composables/useSetlistApi.ts'
 
 const toast = useToast()
 const { page, loadItems, createItem, updateItem, rehearseItem, deleteItem } = useSetlistItemApi()
+const { page: setlistPage, loadSetlists } = useSetlistApi()
 
 const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
 
@@ -53,7 +55,10 @@ async function fetchItems() {
   })
 }
 
-onMounted(fetchItems)
+onMounted(() => {
+  fetchItems()
+  loadSetlists()
+})
 
 watch([pageNumber, query, statusFilter, sort], fetchItems)
 
@@ -177,6 +182,7 @@ async function onDeleted(item: SetlistItem) {
         :show="isFormOpen"
         v-if="selectedListitem"
         :setlistItem="selectedListitem"
+        :setlistPage="setlistPage"
         @updated="onUpdateSetlistItem"
         @rehearsed="onRehearsedSetlistItem"
         @deleted="onDeleted"
