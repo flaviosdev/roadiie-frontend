@@ -25,6 +25,17 @@ export function useSetlistApi() {
     }
   }
 
+  const getSetlistById = async (id: string) => {
+    loading.value = true
+
+    try {
+      const { data } = await http.get<Setlist>(`/setlist/${id}`)
+      return data
+    } finally {
+      loading.value = false
+    }
+  }
+
   const createSetlist = async (setlist: Setlist) => {
     await http.post<Setlist>('/setlist', setlist)
     loadSetlists()
@@ -34,6 +45,7 @@ export function useSetlistApi() {
     page,
     loading,
     loadSetlists,
+    getSetlistById,
     createSetlist,
   }
 }

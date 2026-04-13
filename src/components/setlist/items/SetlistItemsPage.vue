@@ -12,10 +12,16 @@ import SetlistItemSidePanel from '@/components/setlist/items/SetlistItemSidePane
 import Pagination from '@/components/ui/Pagination.vue'
 import { useToast } from '@/composables/useToast.ts'
 import { useSetlistApi } from '@/composables/useSetlistApi.ts'
+import type { Setlist } from '@/types/setlist.ts'
 
 const toast = useToast()
 const { page, loadItems, createItem, updateItem, rehearseItem, deleteItem } = useSetlistItemApi()
-const { page: setlistPage, loadSetlists } = useSetlistApi()
+const { page: setlistPage, loadSetlists, getSetlistById } = useSetlistApi()
+const route = useRoute()
+
+const setlistId = computed(() => route.params.setlistId as string)
+
+const setlist = ref<Setlist | null>(null)
 
 const items = computed<SetlistItem[]>(() => page.value?.content ?? [])
 
@@ -46,8 +52,8 @@ function onPageChange(page: number) {
 }
 
 async function fetchItems() {
-  console.log(props.setlistId)
-  await loadItems(props.setlistId, {
+  console.log(setlistId)
+  await loadItems(setlistId.value, {
     page: pageNumber.value,
     sort: sort.value,
     query: query.value || undefined,
@@ -55,8 +61,16 @@ async function fetchItems() {
   })
 }
 
+async function fetchSetlist() {
+  if (!setlistId.value) return
+  setlist.value = await getSetlistById(setlistId.value)
+}
+
+watch(setlistId, fetchSetlist)
+
 onMounted(() => {
   fetchItems()
+  fetchSetlist()
   loadSetlists()
 })
 
@@ -84,10 +98,10 @@ function setSort(field: string) {
 function onSetlistItemCreated(value: string) {
   const setlistItem = {
     title: value,
-    setlistId: props.setlistId,
+    setlistId: setlistId.value,
   } as SetlistItem
 
-  createItem(props.setlistId, setlistItem).then(() => {
+  createItem(setlistId.value, setlistItem).then(() => {
     toast.success(`Set list item ${setlistItem.title} created successfully.`)
     fetchItems()
   })
@@ -95,7 +109,7 @@ function onSetlistItemCreated(value: string) {
 
 async function onUpdateSetlistItem(value: SetlistItem) {
   if (!value.id) return
-  updateItem(value.setlistId, value.id, value).then((r) => {
+  updateItem(value.setlistId, value.id, value).then(() => {
     toast.success(`Set list item ${value.title} was updated`)
     fetchItems()
     closeForm()
@@ -117,7 +131,7 @@ async function onDeleted(item: SetlistItem) {
 }
 </script>
 <template>
-  <AppPage title="Setlist Items">
+  <AppPage :title="setlist?.title + ': items' || 'Setlist items'">
     <template #toolbar>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div class="flex flex-wrap gap-2">
