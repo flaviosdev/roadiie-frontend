@@ -1,8 +1,9 @@
 import { ref } from 'vue'
 import { http } from '@/api/http'
 import type { Metric } from '@/types/metric.ts'
+import type { Page } from '@/types/page.ts'
 
-export function useMetricApi(uploadId: string, metricId: string, pageSize: number = 14) {
+export function useMetricApi(uploadId: string, metricId: string = 'ALL', pageSize: number = 14) {
   const metrics = ref<Metric[]>([])
   const loadingMetrics = ref(false)
   const errorMetrics = ref<string | null>(null)
@@ -12,7 +13,7 @@ export function useMetricApi(uploadId: string, metricId: string, pageSize: numbe
     errorMetrics.value = null
 
     try {
-      const { data } = await http.get(`/upload/${uploadId}/metrics/${metricId}?page=0&size=${pageSize}`)
+      const { data } = await http.get<Page<Metric>>(`/upload/${uploadId}/metrics/${metricId}?page=0&size=${pageSize}`)
       metrics.value = data.content
     } catch (error: any) {
       error.value = error?.message ?? 'Failed to load metrics'

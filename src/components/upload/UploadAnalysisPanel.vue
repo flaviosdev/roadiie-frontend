@@ -12,7 +12,7 @@ const props = defineProps<{
 
 type TabKey = 'overview' | 'timeline' | 'details' | 'tools'
 
-const activeTab = ref<TabKey>('overview')
+const activeTab = ref<TabKey>('timeline')
 </script>
 
 <template>
