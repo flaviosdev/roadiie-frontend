@@ -15,7 +15,7 @@ const {
   metrics, // ← todos os metrics vêm aqui (content)
   loadMetrics,
   resetMetrics,
-} = useMetricApi(props.upload.id) // ou outro composable se você separou
+} = useMetricApi(props.upload.id, 'ALL', 45) // ou outro composable se você separou
 
 // labels principais
 const labels = computed(() => snapshots.value.map((s) => s.date))
