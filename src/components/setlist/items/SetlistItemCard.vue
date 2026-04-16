@@ -43,9 +43,8 @@ function hasNote(note?: string) {
 }
 
 function onUpdateSetlistItemStatus(status: string) {
-  emit('updateSetlistItem', <SetlistItem>{
-    id: props.setlistItem.id,
-    setlistId: props.setlistItem.setlistId,
+  emit('updateSetlistItem', {
+    ...props.setlistItem,
     status,
   })
 }
